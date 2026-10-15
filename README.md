@@ -9,8 +9,7 @@ Needs Python 3.11 to 3.13 (3.14 and later: PyYAML and Zensical do not install ye
 website_settings.yml        belongs to each repository: name, menu, links, Markdown folders, previous versions
 
 Zensical-WebBuilder/        the tool, the same for every repository
-├─ prepare_website_build.py
-├─ merge_search_indexes.py
+├─ main.py                     entry point: "prepare" and "search" commands
 ├─ requirements.txt
 ├─ webbuilder/
 │  ├─ website_settings.py      WebsiteSettings: shared settings completed by the project's
@@ -41,7 +40,7 @@ pip install -r requirements.txt
 Then, with the `website_settings.yml` of the repository and a folder receiving what is generated:
 
 ```powershell
-python prepare_website_build.py --settings <website_settings.yml> --build-folder <build_folder> --version <version>
+python main.py prepare --settings <website_settings.yml> --build-folder <build_folder> --version <version>
 zensical build --clean -f <build_folder>/zensical_config.yml
 ```
 
@@ -50,7 +49,7 @@ build (a Gradle task, for example).
 
 ## Preview
 
-Replace the last command above by the following one, and run the `prepare_website_build.py` command
+Replace the last command above by the following one, and run the `main.py prepare` command
 again after editing a Markdown file.
 
 ```powershell
@@ -65,7 +64,7 @@ The search box of a website can also find the pages of the other Openflexo websi
 in `website_settings.yml` (see `examples/website_settings.yml`), then, after `zensical build`:
 
 ```bash
-python merge_search_indexes.py --settings <website_settings.yml> --build-folder <folder>
+python main.py search --settings <website_settings.yml> --build-folder <folder>
 ```
 
 The `search.json` of the other websites is downloaded when the script runs. A website that cannot be
