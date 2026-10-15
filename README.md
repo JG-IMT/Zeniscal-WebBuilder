@@ -30,22 +30,31 @@ To document another repository, copy `examples/website_settings.yml`, adapt it a
 
 ## Build
 
-```bash
-./gradlew buildDocumentationSite
+From the tool folder, once:
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1          # each terminal (Linux, macOS: source .venv/bin/activate)
+pip install -r requirements.txt
 ```
 
-The website is written to `build/website/output`.
+Then, with the `website_settings.yml` of the repository and a folder receiving what is generated:
+
+```powershell
+python prepare_website_build.py --settings <website_settings.yml> --build-folder <build_folder> --version <version>
+zensical build --clean -f <build_folder>/zensical_config.yml
+```
+
+The website is written to `<build_folder>/output`. A repository can run these commands from its own
+build (a Gradle task, for example).
 
 ## Preview
 
-From the tool folder. Run the 4th command again after editing a Markdown file.
+Replace the last command above by the following one, and run the `prepare_website_build.py` command
+again after editing a Markdown file.
 
 ```powershell
-python -m venv .venv                                # once
-.venv\Scripts\Activate.ps1                          # each terminal (Linux, macOS: source .venv/bin/activate)
-pip install -r requirements.txt                     # once
-python prepare_website_build.py --settings ../pamela_website/website_settings.yml --build-folder ../build/website
-zensical serve -f ../build/website/zensical_config.yml
+zensical serve -f <build_folder>/zensical_config.yml
 ```
 
 Open http://localhost:8000. Without `--version` the navbar shows "dev".
@@ -62,12 +71,12 @@ python merge_search_indexes.py --settings <website_settings.yml> --build-folder 
 The `search.json` of the other websites is downloaded when the script runs. A website that cannot be
 reached is skipped with a warning.
 
-Limitation: the websites must share the same domain (for example `openflexo.org/pamela/docs/` and
-`openflexo.org/connie/docs/`). The search box opens its results relative to the current website, so
+Limitation: the websites must share the same domain (for example `openflexo.org/<project_a>/docs/` and
+`openflexo.org/<project_b>/docs/`). The search box opens its results relative to the current website, so
 a website on another domain is skipped with a warning.
 
 ## Versions
 
-The version menu reads `versions.json`: the current version (`--version`, which Gradle sets from
-the project version), then the `previous_versions` of `website_settings.yml`. Previous versions are
+The version menu reads `versions.json`: the current version (`--version`, set by the build of the
+repository), then the `previous_versions` of `website_settings.yml`. Previous versions are
 not rebuilt, the menu links to where they are published.
