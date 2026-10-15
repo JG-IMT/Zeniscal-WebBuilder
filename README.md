@@ -14,6 +14,7 @@ Zensical-WebBuilder/        the tool, the same for every repository
 ├─ webbuilder/
 │  ├─ website_settings.py      WebsiteSettings: shared settings completed by the project's
 │  ├─ website_input.py         WebsiteInput: input folder and config read by Zensical
+│  ├─ markdown_links.py        MarkdownLinks: links starting with "/" made relative
 │  └─ search_index.py          SearchIndex: search.json, with the pages of other websites
 ├─ shared/
 │  ├─ site_settings.yml        theme, footer
@@ -57,6 +58,15 @@ zensical serve -f <build_folder>/zensical_config.yml
 ```
 
 Open http://localhost:8000. Without `--version` the navbar shows "dev".
+
+## Links starting with "/"
+
+A link such as `![](/images/schema.png)` leads to the root of the domain, so it breaks once the
+website is published under `openflexo.org/<project>/docs/` (typical of Markdown written for
+Docusaurus). `main.py prepare` makes these links relative in the copies of the pages (Markdown links
+and `src="/..."` / `href="/..."`, except inside code blocks); the Markdown of the repository is not
+changed. The target must exist in the website: declare the folder holding it under
+`documentation_sources`, with the name the links expect (`images`, `img`, `examples`...).
 
 ## Global search
 

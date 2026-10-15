@@ -3,6 +3,7 @@ import os
 import shutil
 from pathlib import Path
 
+from webbuilder.markdown_links import MarkdownLinks
 from webbuilder.website_settings import (
     SHARED_HTML_TEMPLATES_FOLDER, SHARED_STYLE_AND_ICON_FOLDER, WebsiteSettings, write_yaml,
 )
@@ -28,10 +29,12 @@ class WebsiteInput:
 
         _copy_folder(SHARED_STYLE_AND_ICON_FOLDER, self.input_folder)
         self._copy_declared_sources()
+        converted_links_count: int = MarkdownLinks(self.input_folder).make_relative()
         self._write_versions_file()
         self._write_zensical_config()
 
         print(f"Prepared {self._count_markdown_pages()} Markdown pages in {self.input_folder}")
+        print(f"Made {converted_links_count} links relative")
         return self.zensical_config_file
 
     def _copy_declared_sources(self) -> None:
