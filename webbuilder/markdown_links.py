@@ -2,9 +2,12 @@ import posixpath
 import re
 from pathlib import Path
 
-# "](/images/a.png)", src="/images/a.png" and href="/files/a.zip", but not "//host/..."
-ROOT_LINK_PATTERN: re.Pattern = re.compile(r'(\]\(|\b(?:src|href)=")/(?!/)([^)"\s]+)')
-CODE_FENCE_PATTERN: re.Pattern = re.compile(r"^\s*(```|~~~)")
+# A link whose address starts with a single "/": ![](/images/a.png), src="/images/a.png", href="/files/a.zip"
+#   start: what comes before the address ("](", src=" or href=")
+#   path:  the address without its first "/" (up to ")", a quote or a space)
+#   not matched: an external address starting with two slashes, like //cdn.example.org/a.png
+LINK_STARTING_WITH_SLASH: re.Pattern = re.compile(r'(?P<start>\]\(|\b(?:src|href)=")/(?!/)(?P<path>[^)"\s]+)')
+CODE_BLOCK_MARKER: re.Pattern = re.compile(r"^\s*(```|~~~)")
 
 
 class MarkdownLinks:
@@ -19,29 +22,26 @@ class MarkdownLinks:
         self.input_folder: Path = input_folder
 
     def make_relative(self) -> int:
-        converted_links_count: int = 0
-        for page in self.input_folder.rglob("*.md"):
-            page_folder: str = page.parent.relative_to(self.input_folder).as_posix()
-            new_lines, count = self._convert_lines(page.read_text(encoding="utf-8").split("\n"), page_folder)
-            if count:
-                page.write_text("\n".join(new_lines), encoding="utf-8")
-            converted_links_count += count
-        return converted_links_count
+        """Returns the number of links converted."""
+        return sum(self._make_page_relative(page) for page in self.input_folder.rglob("*.md"))
 
-    @staticmethod
-    def _convert_lines(lines: list, page_folder: str) -> tuple:
-        """Lines inside a code block are left as they are."""
+    def _make_page_relative(self, page: Path) -> int:
+        page_folder: str = page.parent.relative_to(self.input_folder).as_posix()
+        lines: list = page.read_text(encoding="utf-8").split("\n")
         converted_links_count: int = 0
         inside_code_block: bool = False
 
-        def to_relative_link(match: re.Match) -> str:
-            nonlocal converted_links_count
-            converted_links_count += 1
-            return match.group(1) + posixpath.relpath(match.group(2), start=page_folder)
-
-        new_lines: list = []
-        for line in lines:
-            if CODE_FENCE_PATTERN.match(line):
+        for line_index, line in enumerate(lines):
+            if CODE_BLOCK_MARKER.match(line):
                 inside_code_block = not inside_code_block
-            new_lines.append(line if inside_code_block else ROOT_LINK_PATTERN.sub(to_relative_link, line))
-        return new_lines, converted_links_count
+            elif not inside_code_block:
+                converted_links_count += len(LINK_STARTING_WITH_SLASH.findall(line))
+                lines[line_index] = LINK_STARTING_WITH_SLASH.sub(lambda link: _relative_link(link, page_folder), line)
+
+        if converted_links_count:
+            page.write_text("\n".join(lines), encoding="utf-8")
+        return converted_links_count
+
+
+def _relative_link(link: re.Match, page_folder: str) -> str:
+    return link["start"] + posixpath.relpath(link["path"], start=page_folder)
