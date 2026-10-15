@@ -16,6 +16,8 @@ class SearchIndex:
         self.own_site_url: str = own_site_url
         self.content: dict = json.loads(index_file.read_text(encoding="utf-8"))
 
+    # -- Public: entry point ------------------------------------------------------------
+
     def add_other_websites(self, other_websites: list) -> int:
         added_entries_count: int = 0
         for other_website in other_websites:
@@ -26,6 +28,8 @@ class SearchIndex:
 
     def save(self) -> None:
         self.index_file.write_text(json.dumps(self.content, ensure_ascii=False), encoding="utf-8")
+
+    # -- Private: other websites --------------------------------------------------------
 
     def _download_entries(self, other_website: dict) -> list:
         """Entries of another website, with links relative to this website and titles prefixed by its name."""
@@ -39,7 +43,7 @@ class SearchIndex:
             print(f"Warning: search index of {other_website['name']} ignored ({error})")
             return []
 
-        return [_to_global_entry(entry, other_website["name"], path_to_other_website) for entry in other_entries]
+        return [self._to_global_entry(entry, other_website["name"], path_to_other_website) for entry in other_entries]
 
     def _relative_path_to(self, other_site_url: str) -> str:
         """Search results are opened relative to the website: the other website must share its domain."""
@@ -48,7 +52,9 @@ class SearchIndex:
             raise ValueError(f"{other_site_url} is not on the same domain as {self.own_site_url}")
         return posixpath.relpath(other_url.path, own_url.path) + "/"
 
+    # -- Private: entries ---------------------------------------------------------------
 
-def _to_global_entry(entry: dict, website_name: str, path_to_other_website: str) -> dict:
-    return {**entry, "location": path_to_other_website + entry["location"],
-            "title": f"{website_name} › {entry['title']}"}
+    @staticmethod
+    def _to_global_entry(entry: dict, website_name: str, path_to_other_website: str) -> dict:
+        return {**entry, "location": path_to_other_website + entry["location"],
+                "title": f"{website_name} › {entry['title']}"}

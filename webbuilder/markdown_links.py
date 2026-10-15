@@ -21,9 +21,13 @@ class MarkdownLinks:
     def __init__(self, input_folder: Path):
         self.input_folder: Path = input_folder
 
+    # -- Public: entry point ------------------------------------------------------------
+
     def make_relative(self) -> int:
         """Returns the number of links converted."""
         return sum(self._make_page_relative(page) for page in self.input_folder.rglob("*.md"))
+
+    # -- Private: pages -----------------------------------------------------------------
 
     def _make_page_relative(self, page: Path) -> int:
         page_folder: str = page.parent.relative_to(self.input_folder).as_posix()
@@ -36,12 +40,14 @@ class MarkdownLinks:
                 inside_code_block = not inside_code_block
             elif not inside_code_block:
                 converted_links_count += len(LINK_STARTING_WITH_SLASH.findall(line))
-                lines[line_index] = LINK_STARTING_WITH_SLASH.sub(lambda link: _relative_link(link, page_folder), line)
+                lines[line_index] = LINK_STARTING_WITH_SLASH.sub(lambda link: self._relative_link(link, page_folder), line)
 
         if converted_links_count:
             page.write_text("\n".join(lines), encoding="utf-8")
         return converted_links_count
 
+    # -- Private: links -----------------------------------------------------------------
 
-def _relative_link(link: re.Match, page_folder: str) -> str:
-    return link["start"] + posixpath.relpath(link["path"], start=page_folder)
+    @staticmethod
+    def _relative_link(link: re.Match, page_folder: str) -> str:
+        return link["start"] + posixpath.relpath(link["path"], start=page_folder)
