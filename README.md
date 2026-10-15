@@ -38,15 +38,16 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-Then, with the `website_settings.yml` of the repository:
+Then, with `<website folder>` the folder holding the `website_settings.yml` of the repository:
 
 ```powershell
-python main.py prepare --settings <website_settings.yml> --version <version>
-zensical build --clean -f <folder of website_settings.yml>/build/zensical_config.yml
+python main.py prepare --settings <website folder>\website_settings.yml --version <version>
+zensical build --clean -f <website folder>\build\zensical_config.yml
 ```
 
-Everything generated goes to the `build` folder next to `website_settings.yml`, and the website is
-written to `build/output`. A repository can run these commands from its own build (a Gradle task,
+For example, with `..\my_project_website\website_settings.yml`, the config is
+`..\my_project_website\build\zensical_config.yml` (the folder, not the file, followed by `build`).
+Everything generated goes to this `build` folder, and the website is written to `build\output`. A repository can run these commands from its own build (a Gradle task,
 for example).
 
 ## Preview
@@ -55,7 +56,7 @@ Replace the last command above by the following one, and run the `main.py prepar
 again after editing a Markdown file.
 
 ```powershell
-zensical serve -f <folder of website_settings.yml>/build/zensical_config.yml
+zensical serve -f <website folder>\build\zensical_config.yml
 ```
 
 Open http://localhost:8000. Without `--version` the navbar shows "dev".
