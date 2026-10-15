@@ -1,24 +1,27 @@
 # Website builder
 
 Builds a documentation website from the Markdown of a repository, with [Zensical](https://zensical.org).
-Needs Python 3.11 or later.
+Needs Python 3.11 to 3.13 (3.14 and later: PyYAML and Zensical do not install yet).
 
 ## Structure
 
 ```
-pamela_website/             belongs to Pamela
-└─ website_settings.yml        name, menu, links, Markdown folders, previous versions
+website_settings.yml        belongs to each repository: name, menu, links, Markdown folders, previous versions
 
-zensical_website_builder/   the tool, the same for every repository
+Zensical-WebBuilder/        the tool, the same for every repository
 ├─ prepare_website_build.py
-├─ shared_site_settings.yml    theme, footer
-├─ shared_html_templates/
-└─ shared_style_and_icon/
+├─ requirements.txt
+├─ shared/
+│  ├─ site_settings.yml        theme, footer
+│  ├─ html_templates/
+│  └─ style_and_icon/
+└─ examples/
+   └─ website_settings.yml     template to copy for a new repository
 
 build/website/              generated: input/, zensical_config.yml, output/ (the website)
 ```
 
-To document another repository, write its own `website_settings.yml` and run the same tool.
+To document another repository, copy `examples/website_settings.yml`, adapt it and run the same tool.
 
 ## Build
 
@@ -30,7 +33,7 @@ The website is written to `build/website/output`.
 
 ## Preview
 
-From `zensical_website_builder/`. Run the 4th command again after editing a Markdown file.
+From the tool folder. Run the 4th command again after editing a Markdown file.
 
 ```powershell
 python -m venv .venv                                # once
