@@ -10,7 +10,12 @@ website_settings.yml        belongs to each repository: name, menu, links, Markd
 
 Zensical-WebBuilder/        the tool, the same for every repository
 ├─ prepare_website_build.py
+├─ merge_search_indexes.py
 ├─ requirements.txt
+├─ webbuilder/
+│  ├─ website_settings.py      WebsiteSettings: shared settings completed by the project's
+│  ├─ website_input.py         WebsiteInput: input folder and config read by Zensical
+│  └─ search_index.py          SearchIndex: search.json, with the pages of other websites
 ├─ shared/
 │  ├─ site_settings.yml        theme, footer
 │  ├─ html_templates/
@@ -44,6 +49,22 @@ zensical serve -f ../build/website/zensical_config.yml
 ```
 
 Open http://localhost:8000. Without `--version` the navbar shows "dev".
+
+## Global search
+
+The search box of a website can also find the pages of the other Openflexo websites. Declare them
+in `website_settings.yml` (see `examples/website_settings.yml`), then, after `zensical build`:
+
+```bash
+python merge_search_indexes.py --settings <website_settings.yml> --build-folder <folder>
+```
+
+The `search.json` of the other websites is downloaded when the script runs. A website that cannot be
+reached is skipped with a warning.
+
+Limitation: the websites must share the same domain (for example `openflexo.org/pamela/docs/` and
+`openflexo.org/connie/docs/`). The search box opens its results relative to the current website, so
+a website on another domain is skipped with a warning.
 
 ## Versions
 

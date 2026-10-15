@@ -28,6 +28,10 @@ extra:
   previous_versions:
     - name: "1.0"
       link: https://openflexo.org/my_project/docs/1.0/
+  # Other Openflexo websites (same domain) whose pages the search box also finds
+  global_search:
+    - name: Other project
+      site_url: https://openflexo.org/other_project/docs/
   navbar_links:
     - title: Home
       link: https://openflexo.org/
