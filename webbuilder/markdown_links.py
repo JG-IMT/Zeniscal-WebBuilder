@@ -25,7 +25,10 @@ class MarkdownLinks:
 
     def make_relative(self) -> int:
         """Returns the number of links converted."""
-        return sum(self._make_page_relative(page) for page in self.input_folder.rglob("*.md"))
+        converted_links_count: int = 0
+        for page in self.input_folder.rglob("*.md"):
+            converted_links_count += self._make_page_relative(page)
+        return converted_links_count
 
     # -- Private: pages -----------------------------------------------------------------
 
@@ -35,19 +38,17 @@ class MarkdownLinks:
         converted_links_count: int = 0
         inside_code_block: bool = False
 
+        def relative_link(link: re.Match) -> str:
+            return link["start"] + posixpath.relpath(link["path"], start=page_folder)
+
         for line_index, line in enumerate(lines):
             if CODE_BLOCK_MARKER.match(line):
                 inside_code_block = not inside_code_block
             elif not inside_code_block:
-                converted_links_count += len(LINK_STARTING_WITH_SLASH.findall(line))
-                lines[line_index] = LINK_STARTING_WITH_SLASH.sub(lambda link: self._relative_link(link, page_folder), line)
+                links_in_line: list = LINK_STARTING_WITH_SLASH.findall(line)
+                converted_links_count += len(links_in_line)
+                lines[line_index] = LINK_STARTING_WITH_SLASH.sub(relative_link, line)
 
         if converted_links_count:
             page.write_text("\n".join(lines), encoding="utf-8")
         return converted_links_count
-
-    # -- Private: links -----------------------------------------------------------------
-
-    @staticmethod
-    def _relative_link(link: re.Match, page_folder: str) -> str:
-        return link["start"] + posixpath.relpath(link["path"], start=page_folder)

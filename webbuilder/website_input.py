@@ -36,8 +36,8 @@ class WebsiteInput:
         self._write_versions_file()
         self._write_zensical_config()
 
-        pages_count: int = sum(1 for _ in self.input_folder.rglob("*.md"))
-        print(f"Prepared {pages_count} Markdown pages in {self.input_folder} "
+        markdown_pages: list = list(self.input_folder.rglob("*.md"))
+        print(f"Prepared {len(markdown_pages)} Markdown pages in {self.input_folder} "
               f"({relative_links_count} links made relative)")
         return self.zensical_config_file
 

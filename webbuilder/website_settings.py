@@ -33,7 +33,8 @@ class WebsiteSettings:
 
     @property
     def other_websites(self) -> list:
-        return (self.values.get("extra") or {}).get(GLOBAL_SEARCH_KEY, [])
+        extra: dict = self.values.get("extra") or {}
+        return extra.get(GLOBAL_SEARCH_KEY, [])
 
     # -- Private: sources ---------------------------------------------------------------
 
