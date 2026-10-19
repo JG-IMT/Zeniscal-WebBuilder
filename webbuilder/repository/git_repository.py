@@ -1,3 +1,6 @@
+import os
+import shutil
+import stat
 import subprocess
 from pathlib import Path
 
@@ -8,7 +11,7 @@ class GitRepository:
     def __init__(self, repository_url: str):
         self.repository_url: str = repository_url
 
-    # -- Public: clone and root ---------------------------------------------------------
+    # -- Public: clone, delete and root ---------------------------------------------------
 
     def clone_at(self, git_ref: str, destination_folder: Path) -> None:
         result: subprocess.CompletedProcess = self._run_git(
@@ -16,6 +19,12 @@ class GitRepository:
         )
         if result.returncode != 0:
             raise SystemExit(f"Cannot clone {self.repository_url} at '{git_ref}': {result.stderr.strip()}")
+
+    @staticmethod
+    def delete_clone(clone_folder: Path) -> None:
+        """Deletes a clone: git writes read-only files in it, which Windows refuses to delete as they are."""
+        if clone_folder.exists():
+            shutil.rmtree(clone_folder, onerror=GitRepository._retry_after_making_writable)
 
     @staticmethod
     def find_repository_root_containing(folder: Path) -> Path:
@@ -33,3 +42,8 @@ class GitRepository:
             return subprocess.run(["git", "-c", "core.longpaths=true"] + arguments, capture_output=True, text=True)
         except FileNotFoundError:
             raise SystemExit("git is not installed or not in the PATH")
+
+    @staticmethod
+    def _retry_after_making_writable(delete_function, path: str, _error) -> None:
+        os.chmod(path, stat.S_IWRITE)
+        delete_function(path)

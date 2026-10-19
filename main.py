@@ -45,8 +45,8 @@ def _prepare(arguments: argparse.Namespace) -> None:
 
 def _build(arguments: argparse.Namespace) -> None:
     settings: WebsiteSettings = WebsiteSettings(arguments.settings)
-    repository: GitRepository = GitRepository(arguments.repository_url or settings.repository_url)
-    WebsiteBuild(settings, repository, arguments.settings.parent / BUILD_FOLDER_NAME).build()
+    git_repository: GitRepository = GitRepository(arguments.repository_url or settings.repository_url)
+    WebsiteBuild(settings, git_repository, arguments.settings.parent / BUILD_FOLDER_NAME).build()
 
 
 def _serve(arguments: argparse.Namespace) -> None:
