@@ -52,7 +52,7 @@ class WebsiteBuild:
         self._delete_folder(self.output_folder)
         self.output_in_progress_folder.rename(self.output_folder)
 
-        print(f"Website of {len(self.settings.versions)} version(s) in {self.output_folder}")
+        print(f"Website built in {self.output_folder}")
         return self.output_folder
 
 

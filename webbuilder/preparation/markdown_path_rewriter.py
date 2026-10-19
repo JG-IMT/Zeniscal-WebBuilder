@@ -1,3 +1,10 @@
+"""
+Rewrites, in the copies of the Markdown pages, the paths that start with "/": finds each path, leaves
+the fenced code blocks alone, asks a WebsitePathResolver where the path must point, and writes the
+page back only when a path changed. Line endings and the BOM are kept. The sources are never changed,
+only the copies it is given.
+"""
+
 import re
 from pathlib import Path
 
@@ -12,24 +19,33 @@ CODE_BLOCK_MARKER: re.Pattern = re.compile(r"^\s*(```|~~~)")
 
 
 class MarkdownPathRewriter:
-    """Rewrites, in the copies of the Markdown pages, the paths that start with "/" (the sources are never changed)."""
+    """Rewrites the paths starting with "/" in Markdown page files, as decided by a WebsitePathResolver."""
 
-    def __init__(self, path_resolver: WebsitePathResolver):
+    # -- Public: initialization ----------------------------------------------------------------------
+
+    def __init__(self, path_resolver: WebsitePathResolver) -> None:
         self.path_resolver: WebsitePathResolver = path_resolver
 
-    # -- Public: entry point ------------------------------------------------------------
 
-    def rewrite_paths_in(self, page_files: list) -> None:
+    # -- Public: entry point -------------------------------------------------------------------------
+
+    def rewrite_paths_in(self, page_files: list[Path]) -> None:
+        """
+        Rewrites the paths starting with "/" of each page file (links, images, src and href
+        attributes). A page that is not a UTF-8 file stops the build, naming the page.
+        """
         for page_file in page_files:
             self._rewrite_paths_in_file(page_file)
 
-    # -- Private: one page file ---------------------------------------------------------
+
+    # -- Private: one page file ----------------------------------------------------------------------
 
     def _rewrite_paths_in_file(self, page_file: Path) -> None:
         page_text: str = self._read_page_text(page_file)
         page_text_with_rewritten_paths: str = self._page_text_with_rewritten_paths(page_text, page_file)
         if page_text_with_rewritten_paths != page_text:
             page_file.write_bytes(page_text_with_rewritten_paths.encode("utf-8"))
+
 
     @staticmethod
     def _read_page_text(page_file: Path) -> str:
@@ -38,8 +54,9 @@ class MarkdownPathRewriter:
         except UnicodeDecodeError:
             raise SystemExit(f"{page_file}: the page is not a UTF-8 file")
 
+
     def _page_text_with_rewritten_paths(self, page_text: str, page_file: Path) -> str:
-        lines: list = page_text.split("\n")
+        lines: list[str] = page_text.split("\n")
         inside_code_block: bool = False
 
         for line_index, line in enumerate(lines):
@@ -50,7 +67,8 @@ class MarkdownPathRewriter:
 
         return "\n".join(lines)
 
-    # -- Private: one line --------------------------------------------------------------
+
+    # -- Private: one line ---------------------------------------------------------------------------
 
     def _line_with_rewritten_paths(self, line: str, page_file: Path) -> str:
         line_with_rewritten_paths: str = ""

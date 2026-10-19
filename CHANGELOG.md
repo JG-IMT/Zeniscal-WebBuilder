@@ -47,6 +47,11 @@ files at the root of the folder.
 - **One owner for the layout of the versions**: `WebsiteVersions.folder_of` ("." for the latest, its
   name for the others) is used by `site_url_of`, `VersionSiteInput` and `WebsiteBuild`, which each wrote
   the rule themselves.
+- **`repository_url` is optional in the settings**: `prepare` never needed it and `build --repository-url`
+  replaces it. `build` stops with one line if neither gives a repository
+  (`WebsiteSettings.repository_url_to_clone`). Less public surface: `WebsiteSettings.site_url` and
+  `project_settings_file`, `WebsiteVersions.site_url` and `versions_in_declared_order` are internal,
+  `WebsiteVersions.__len__` and the `repository_url` type check are removed.
 - **Names and places**: `WebsiteSettings.values` is `zensical_values`, `project_path` is
   `project_url_path` (also in `WebsitePathResolver`), `_extract_required_from_extra` is
   `_pop_required_from_extra`. The folders of the tool (`TOOL_FOLDER`, `SHARED_*`) moved to
