@@ -32,6 +32,11 @@ files at the root of the folder.
 - **`prepare`** prepares the latest version from the working folder, to write the documentation.
   `--version` and `--latest-version` are removed.
 
+- **Paths starting with "/"**: `MarkdownLinks` replaced by `WebsitePathResolver` (decides where a path
+  must point) and `MarkdownPathRewriter` (rewrites the paths of the page files). A path whose project
+  path is guessed prints a warning naming the page. Line endings and BOM are kept, a page that is not
+  UTF-8 is refused with its name. The Markdown page files are listed by `WebsiteInput`.
+
 #### Removed
 
 - `previous_versions` (links written by hand, replaced by `versions`) and the top-level `nav`.

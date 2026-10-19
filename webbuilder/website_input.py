@@ -5,12 +5,14 @@ import posixpath
 import shutil
 from pathlib import Path
 
-from webbuilder.markdown_links import MarkdownLinks
+from webbuilder.markdown_path_rewriter import MarkdownPathRewriter
+from webbuilder.website_path_resolver import WebsitePathResolver
 from webbuilder.website_settings import (
     SHARED_HTML_TEMPLATES_FOLDER, SHARED_STYLE_AND_ICON_FOLDER, WebsiteSettings, write_yaml,
 )
 from webbuilder.website_version import WebsiteVersion
 
+MARKDOWN_EXTENSION: str = ".md"
 INPUT_FOLDER_NAME: str = "input"
 OUTPUT_FOLDER_NAME: str = "output"
 ZENSICAL_CONFIG_FILE_NAME: str = "zensical_config.yml"
@@ -36,14 +38,15 @@ class WebsiteInput:
 
         self._copy_folder(SHARED_STYLE_AND_ICON_FOLDER, self.input_folder)
         self._copy_declared_sources()
-        markdown_pages: list = list(self.input_folder.rglob("*.md"))
-        if not markdown_pages:
+        markdown_page_files: list = self._markdown_page_files()
+        if not markdown_page_files:
             raise SystemExit(f"Version {self.version.name}: no Markdown page in the declared sources")
-        MarkdownLinks(self.input_folder, self.settings.project_path).fix()
+        path_resolver: WebsitePathResolver = WebsitePathResolver(self.input_folder, self.settings.project_path)
+        MarkdownPathRewriter(path_resolver).rewrite_paths_in(markdown_page_files)
         self._write_versions_file()
         self._write_zensical_config()
 
-        print(f"Prepared {len(markdown_pages)} Markdown pages in {self.input_folder}")
+        print(f"Prepared {len(markdown_page_files)} Markdown pages in {self.input_folder}")
         return self.zensical_config_file
 
     # -- Private: files -----------------------------------------------------------------
@@ -63,6 +66,14 @@ class WebsiteInput:
     @staticmethod
     def _copy_folder(source_folder: Path, destination_folder: Path) -> None:
         shutil.copytree(source_folder, destination_folder, dirs_exist_ok=True)
+
+    def _markdown_page_files(self) -> list:
+        markdown_page_files: list = []
+        for walked_folder, subfolder_names, file_names in os.walk(self.input_folder):
+            for file_name in file_names:
+                if file_name.endswith(MARKDOWN_EXTENSION):
+                    markdown_page_files.append(Path(walked_folder) / file_name)
+        return markdown_page_files
 
     # -- Private: versions --------------------------------------------------------------
 

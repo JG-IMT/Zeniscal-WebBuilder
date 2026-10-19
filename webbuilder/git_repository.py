@@ -19,7 +19,8 @@ class GitRepository:
 
     @staticmethod
     def find_root_containing(folder: Path) -> Path:
-        result: subprocess.CompletedProcess = GitRepository._run_git(["-C", str(folder), "rev-parse", "--show-toplevel"])
+        git_arguments: list = ["-C", str(folder), "rev-parse", "--show-toplevel"]
+        result: subprocess.CompletedProcess = GitRepository._run_git(git_arguments)
         if result.returncode != 0:
             raise SystemExit(f"{folder} is not inside a git repository")
         return Path(result.stdout.strip())
