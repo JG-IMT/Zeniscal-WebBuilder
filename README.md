@@ -27,6 +27,16 @@ python main.py serve --settings path\to\website_settings.yml
 
 The website is in the `build\output` folder next to `website_settings.yml`.
 
+## Commands
+
+Every command needs `--settings`, the path of your `website_settings.yml`.
+
+| Command | Example | What it does |
+|---|---|---|
+| `build` | `python main.py build --settings website_settings.yml` | Builds every version in `build\output`. `--repository-url <url or folder>` clones that repository instead of the declared one |
+| `serve` | `python main.py serve --settings website_settings.yml --port 8080` | Serves `build\output` on http://localhost:8080 (`--port` is optional, 8000 by default) |
+| `prepare` | `python main.py prepare --settings website_settings.yml --clean` | Prepares the latest version from your working folder, to preview it while writing. `--clean` deletes the input folder first |
+
 ## Settings
 
 In `website_settings.yml`, under `extra:`:

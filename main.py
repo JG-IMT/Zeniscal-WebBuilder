@@ -76,18 +76,25 @@ def _parse_arguments() -> argparse.Namespace:
     parser: argparse.ArgumentParser = argparse.ArgumentParser(description="Website builder, based on Zensical.")
     commands = parser.add_subparsers(dest="command", required=True)
 
+    
+    # python main.py prepare --settings website_settings.yml --clean
     prepare_parser = commands.add_parser("prepare", help="prepare the input folder and the config of Zensical")
     prepare_parser.add_argument("--clean", action="store_true", help="delete the input folder first")
     prepare_parser.set_defaults(run=_prepare)
 
+    # python main.py build --settings website_settings.yml --repository-url https://github.com/my_org/my_project.git
+    # python main.py build --settings website_settings.yml --repository-url ../my_project   (a local folder)
     build_parser = commands.add_parser("build", help="build every declared version and assemble the website")
     build_parser.add_argument("--repository-url", help="repository to clone instead of the declared one")
     build_parser.set_defaults(run=_build)
 
+    # python main.py serve --settings website_settings.yml --port 8080
     serve_parser = commands.add_parser("serve", help="serve the built website on http://localhost")
     serve_parser.add_argument("--port", type=int, default=DEFAULT_PORT)
     serve_parser.set_defaults(run=_serve)
+    
 
+    # --settings is required by every command: python main.py build --settings path/to/website_settings.yml
     for command_parser in (prepare_parser, build_parser, serve_parser):
         command_parser.add_argument("--settings", type=_existing_file, required=True,
                                     help="website_settings.yml of the project")
