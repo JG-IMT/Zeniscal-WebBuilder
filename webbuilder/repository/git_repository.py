@@ -32,10 +32,13 @@ class GitRepository:
 
 
     @staticmethod
-    def delete_clone(clone_folder: Path) -> None:
-        """Deletes a clone: git writes read-only files in it, which Windows refuses to delete as they are."""
-        if clone_folder.exists():
-            shutil.rmtree(clone_folder, onerror=GitRepository._retry_after_making_writable)
+    def delete_folder_with_clones(folder: Path) -> None:
+        """
+        Deletes a clone, or a folder holding clones: git writes read-only files in a clone, which
+        Windows refuses to delete as they are.
+        """
+        if folder.exists():
+            shutil.rmtree(folder, onerror=GitRepository._retry_after_making_writable)
 
 
     @staticmethod

@@ -52,7 +52,7 @@ class VersionBuild:
             )
             self._run_zensical(version_site_input.prepare(clean_first=True))
         finally:
-            GitRepository.delete_clone(self.repository_folder)
+            GitRepository.delete_folder_with_clones(self.repository_folder)
         return self.output_folder
 
 

@@ -39,7 +39,7 @@ class WebsiteBuild:
         previous output by it. Stops at the first version that fails, keeping the previous output.
         Returns the output folder.
         """
-        self._delete_folder(self.version_builds_folder)
+        GitRepository.delete_folder_with_clones(self.version_builds_folder)  # may hold the clones of an older build
         self._delete_folder(self.output_in_progress_folder)
 
         for version in self.settings.versions:
