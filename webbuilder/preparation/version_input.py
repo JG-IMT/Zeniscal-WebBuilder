@@ -20,7 +20,7 @@ ZENSICAL_CONFIG_FILE_NAME: str = "zensical_config.yml"
 VERSIONS_FILE_NAME: str = "versions.json"
 
 
-class WebsiteInput:
+class VersionInput:
     """What Zensical builds a website from: the input folder and its config file."""
 
     def __init__(self, settings: WebsiteSettings, repository_folder: Path, build_folder: Path,
