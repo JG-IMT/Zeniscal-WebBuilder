@@ -37,7 +37,7 @@ def _prepare(arguments: argparse.Namespace) -> None:
     settings: WebsiteSettings = WebsiteSettings(arguments.settings)
     repository_folder: Path = GitRepository.find_root_containing(arguments.settings.parent)
     build_folder: Path = arguments.settings.parent / BUILD_FOLDER_NAME
-    website_input: WebsiteInput = WebsiteInput(settings, repository_folder, build_folder, settings.latest_version)
+    website_input: WebsiteInput = WebsiteInput(settings, repository_folder, build_folder, settings.versions.latest)
     print(f"Zensical config: {website_input.prepare(arguments.clean)}")
 
 

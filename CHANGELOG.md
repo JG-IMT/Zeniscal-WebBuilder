@@ -11,7 +11,7 @@ files at the root of the folder.
 #### Added
 
 - **Versions declared in `website_settings.yml`** (`extra.repository_url`, `extra.versions`): name,
-  `git_ref` (branch or tag), `is_latest`, optional `navigation`. Classes `WebsiteVersion` and
+  `git_ref` (branch or tag), `is_latest`, optional `navigation`. Classes `WebsiteVersion`, `WebsiteVersions` and
   `GitRepository` (shallow clone).
 - **`main.py build`**: clones each version, prepares it, runs Zensical and assembles `build/output` (latest version at the root, the others
   in `<name>/`). Classes `VersionBuild` and `WebsiteBuild`. `--repository-url` replaces the declared
@@ -36,7 +36,7 @@ files at the root of the folder.
   path is guessed prints a warning naming the page. Line endings and BOM are kept, a page that is not
   UTF-8 is refused with its name. The Markdown page files are listed by `WebsiteInput`.
 
-- **Code by role** (`webbuilder/`): `settings/` (`WebsiteSettings`, `WebsiteVersion`), `repository/`
+- **Code by role** (`webbuilder/`): `settings/` (`WebsiteSettings`, `WebsiteVersion`, `WebsiteVersions`), `repository/`
   (`GitRepository`), `preparation/` (`WebsiteInput`, `WebsitePathResolver`, `MarkdownPathRewriter`),
   `building/` (`VersionBuild`, `WebsiteBuild`).
 

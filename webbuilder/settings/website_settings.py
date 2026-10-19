@@ -3,7 +3,7 @@ from urllib.parse import urlparse
 
 import yaml
 
-from webbuilder.settings.website_version import WebsiteVersion
+from webbuilder.settings.website_versions import WebsiteVersions
 
 
 TOOL_FOLDER: Path = Path(__file__).parent.parent.parent
@@ -28,7 +28,7 @@ class WebsiteSettings:
         self.sources: list = self._extract_required_from_extra(SOURCES_KEY, "folders to copy")
         self.repository_url: str = self._extract_required_from_extra(REPOSITORY_URL_KEY, "repository to clone")
         declared_versions: list = self._extract_required_from_extra(VERSIONS_KEY, "versions to build")
-        self.versions: list = self._create_versions(declared_versions)
+        self.versions: WebsiteVersions = self._create_versions(declared_versions)
 
     # -- Public: settings ---------------------------------------------------------------
 
@@ -41,23 +41,6 @@ class WebsiteSettings:
         """The project path on its domain, from "homepage" (https://openflexo.org/my_project/ gives "my_project")."""
         homepage_url: str = self.values["extra"].get("homepage", "")
         return urlparse(homepage_url).path.strip("/")
-
-    # -- Public: versions ---------------------------------------------------------------
-
-    @property
-    def latest_version(self) -> WebsiteVersion:
-        return next(version for version in self.versions if version.is_latest)
-
-    @property
-    def earlier_versions(self) -> list:
-        return [version for version in self.versions if not version.is_latest]
-
-    def site_url_of(self, version: WebsiteVersion) -> str:
-        """The latest version is at the root of the website, an earlier one in the folder named after it."""
-        site_url: str = self.site_url.rstrip("/") + "/"
-        if version.is_latest:
-            return site_url
-        return f"{site_url}{version.name}/"
 
     # -- Private: extraction ------------------------------------------------------------
 
@@ -74,22 +57,11 @@ class WebsiteSettings:
 
     # -- Private: versions --------------------------------------------------------------
 
-    def _create_versions(self, declared_versions: list) -> list:
+    def _create_versions(self, declared_versions: list) -> WebsiteVersions:
         try:
-            versions: list = [WebsiteVersion(declaration) for declaration in declared_versions or []]
+            return WebsiteVersions(declared_versions, self.site_url)
         except ValueError as error:
             raise SystemExit(f"{self.project_settings_file}: {error}")
-        self._check_versions(versions)
-        return versions
-
-    def _check_versions(self, versions: list) -> None:
-        names: list = [version.name for version in versions]
-        if len(set(names)) != len(names):
-            raise SystemExit(f"{self.project_settings_file}: version names must be unique")
-        latest_versions_count: int = sum(version.is_latest for version in versions)
-        if latest_versions_count != 1:
-            raise SystemExit(f"{self.project_settings_file}: exactly one version must have 'is_latest: true' "
-                             f"(found {latest_versions_count})")
 
     # -- Private: merge -----------------------------------------------------------------
 

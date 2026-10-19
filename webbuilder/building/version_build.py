@@ -5,7 +5,7 @@ from pathlib import Path
 from webbuilder.repository.git_repository import GitRepository
 from webbuilder.preparation.website_input import OUTPUT_FOLDER_NAME, WebsiteInput
 from webbuilder.settings.website_settings import WebsiteSettings
-from webbuilder.settings.website_version import WebsiteVersion
+from webbuilder.settings.website_versions import WebsiteVersion
 
 REPOSITORY_FOLDER_NAME: str = "repository"
 
