@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 class GitRepository:
-    """A git repository, cloned to build one of its versions."""
+    """Git operations on a repository: cloning it at a git reference, finding the root of the one around a folder."""
 
     def __init__(self, repository_url: str):
         self.repository_url: str = repository_url
@@ -18,7 +18,7 @@ class GitRepository:
             raise SystemExit(f"Cannot clone {self.repository_url} at '{git_ref}': {result.stderr.strip()}")
 
     @staticmethod
-    def find_root_containing(folder: Path) -> Path:
+    def find_repository_root_containing(folder: Path) -> Path:
         git_arguments: list = ["-C", str(folder), "rev-parse", "--show-toplevel"]
         result: subprocess.CompletedProcess = GitRepository._run_git(git_arguments)
         if result.returncode != 0:
