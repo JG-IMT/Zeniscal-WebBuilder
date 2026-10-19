@@ -2,10 +2,10 @@
 Entry point of the website builder.
 
 Usage:
-    python main.py prepare --settings <website_settings.yml> [--version 1.2.3] [--latest-version 1.2.4]
-                           [--clean]
-        Prepares what Zensical needs: the input folder (the project's Markdown and images, plus the
-        files shared by every website) and the config file. Everything generated goes to the "build"
+    python main.py prepare --settings <website_settings.yml> [--version 1.2.3] [--clean]
+        Prepares what Zensical needs: the input folder (the Markdown and images of the repository containing
+        website_settings.yml, plus the files shared by every website) and the config file, for a version
+        declared in website_settings.yml (default: the latest). Everything generated goes to the "build"
         folder next to website_settings.yml. Then build with:
         zensical build -f <build folder>/zensical_config.yml
 
@@ -20,22 +20,23 @@ Usage:
 import argparse
 from pathlib import Path
 
+from webbuilder.git_repository import GitRepository
 from webbuilder.search_index import SEARCH_INDEX_FILE_NAME, SearchIndex
 from webbuilder.website_input import OUTPUT_FOLDER_NAME, WebsiteInput
 from webbuilder.website_settings import WebsiteSettings
+from webbuilder.website_version import WebsiteVersion
 
-DEFAULT_VERSION: str = "dev"
 BUILD_FOLDER_NAME: str = "build"
 
 
 # -- Commands ---------------------------------------------------------------------------
 
 def _prepare(arguments: argparse.Namespace) -> None:
+    settings: WebsiteSettings = WebsiteSettings(arguments.settings)
+    version: WebsiteVersion = settings.version_named(arguments.version) if arguments.version else settings.latest_version
+    repository_folder: Path = GitRepository.find_root_containing(arguments.settings.parent)
     build_folder: Path = arguments.settings.parent / BUILD_FOLDER_NAME
-    latest_version: str = arguments.latest_version or arguments.version
-    website_input: WebsiteInput = WebsiteInput(
-        WebsiteSettings(arguments.settings), build_folder, arguments.version, latest_version
-    )
+    website_input: WebsiteInput = WebsiteInput(settings, repository_folder, build_folder, version)
     print(f"Zensical config: {website_input.prepare(arguments.clean)}")
 
 
@@ -64,8 +65,7 @@ def _parse_arguments() -> argparse.Namespace:
     commands = parser.add_subparsers(dest="command", required=True)
 
     prepare_parser = commands.add_parser("prepare", help="prepare the input folder and the config of Zensical")
-    prepare_parser.add_argument("--version", default=DEFAULT_VERSION, help="version shown in the website")
-    prepare_parser.add_argument("--latest-version", help="latest version, for an earlier version (adds a banner)")
+    prepare_parser.add_argument("--version", help="version to prepare (default: the latest)")
     prepare_parser.add_argument("--clean", action="store_true", help="delete the input folder first")
     prepare_parser.set_defaults(run=_prepare)
 

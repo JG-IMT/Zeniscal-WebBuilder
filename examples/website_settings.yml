@@ -21,13 +21,13 @@ extra:
           - my-module/index.md
     - name: "1.0"
       git_ref: "1.0"
-  # Folders copied into the website, relative to this file. A later entry overwrites an earlier one.
+  # Folders copied into the website, relative to the repository root. A later entry overwrites an earlier one.
   documentation_sources:
-    - source: ../src/site/markdown
+    - source: src/site/markdown
       destination: .
-    - source: ../my-module/src/site/markdown
+    - source: my-module/src/site/markdown
       destination: my-module
-    - source: ../src/site/resources/images
+    - source: src/site/resources/images
       destination: images
   homepage: https://openflexo.org/my_project/
   # Other Openflexo websites (same domain) whose pages the search box also finds
