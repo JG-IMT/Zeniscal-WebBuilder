@@ -6,7 +6,39 @@ files at the root of the folder.
 
 ## Tool (Zensical-WebBuilder, branch `dev`)
 
-### Changed
+### 2026-10-19: every version built from git
+
+#### Added
+
+- **Versions declared in `website_settings.yml`** (`extra.repository_url`, `extra.versions`): name,
+  `git_ref` (branch or tag), `is_latest`, optional `navigation`. Classes `WebsiteVersion` and
+  `GitRepository` (shallow clone).
+- **`main.py build`**: clones each version, prepares it, runs Zensical, adds the pages of the other
+  websites to its search index and assembles `build/output` (latest version at the root, the others
+  in `<name>/`). Classes `VersionBuild` and `WebsiteBuild`. `--repository-url` replaces the declared
+  repository (a fork, a local folder).
+- **`main.py serve`**: serves `build/output` on a local port.
+- **Checks that stop the build**: version name not text or with forbidden characters, duplicated
+  names, not exactly one latest version, a top-level `nav`, a git reference that cannot be cloned,
+  a source folder missing, no Markdown page.
+- **Version menu**: same page in the chosen version when it exists, otherwise its home page, with
+  links relative to the displayed version (the local website stays local).
+- **Per version**: its own `site_url` (sitemap, canonical link), its own `navigation` when declared,
+  the banner of an earlier version links to the latest one (`extra.latest_version_url`).
+
+#### Changed
+
+- **`documentation_sources` are relative to the repository root**, no longer to `website_settings.yml`.
+- **`prepare`** prepares the latest version from the working folder, to write the documentation.
+  `--version` and `--latest-version` are removed.
+
+#### Removed
+
+- `previous_versions` (links written by hand, replaced by `versions`) and the top-level `nav`.
+
+### 2026-10-15: the tool outside Pamela
+
+#### Changed
 
 - **Folders**: the shared files moved into `shared/` (`site_settings.yml`, `html_templates/`,
   `style_and_icon/`). `examples/website_settings.yml` is a template for a new repository.
@@ -16,35 +48,37 @@ files at the root of the folder.
 - **Code style**: sections `# -- Public / Private --` (public first), explicit steps instead of
   dense one-liners, private helpers as static methods, lines of 120 characters at most.
 - **One entry point**, `main.py`, with two commands: `prepare` (replaces `prepare_website_build.py`)
-  and `search`.
+  and `search` (`build` and `serve` were added on 2026-10-19).
 - **Build folder**: always `build/` next to `website_settings.yml`. The `--build-folder` option is
   removed.
 - **`--settings`** must be an existing file (a folder is refused) and says so clearly.
 - **README** rewritten (install, use, features), Python 3.11 to 3.13 stated in the README and in
   `requirements.txt`, no mention of a particular project in the tool.
 
-### Added
+#### Added
 
 - **Links starting with "/"** are fixed in the copies of the pages (never in the sources):
   relative when the target is in the website, unchanged when they already start with the project
   path, otherwise the project path is put in front. The project path comes from `homepage`.
 - **Global search** (`main.py search`): the pages of other websites, declared under `global_search`,
   are added to `search.json`. Same domain required.
-- **Banner on earlier versions** (`prepare --latest-version 1.6.1`): the menu lists the latest
+- **Banner on earlier versions** (`--latest-version`, replaced on 2026-10-19 by `versions`): the menu lists the latest
   version first, the built version is marked as current, and every page links to the latest version.
 
-### Removed
+#### Removed
 
 - `prepare_website_build.py`, `merge_search_indexes.py` (replaced by `main.py`), the `--build-folder`
   option.
 
-### Fixed
+#### Fixed
 
 - `.gitignore`: `.__pycache__/` became `__pycache__/`.
 
 ## Pamela (branch `julien-clean`, from `1.6.1`)
 
-Nothing existing was changed: no Markdown, no image, no folder moved. Three additions:
+Not migrated yet to the 2026-10-19 version of the tool (`versions`, sources relative to the
+repository root, `build`). State of 2026-10-15: nothing existing was changed: no Markdown, no image,
+no folder moved. Three additions:
 
 - `zensical_website_builder/`: copy of the tool (19 files), kept in sync by hand.
 - `pamela_website/website_settings.yml`: name, menu, Markdown folders (`resources/images`, `img`,
@@ -53,6 +87,18 @@ Nothing existing was changed: no Markdown, no image, no folder moved. Three addi
   `./gradlew buildDocumentationSite`; the site is written to `pamela_website/build/output`.
 
 ## Checked
+
+2026-10-19, on clones of Pamela (`1.6.1`, `1.6`, `1.5.0.1`) with Zensical 0.0.70, by hand:
+
+- `build` of the three versions, twice in a row: Zensical "No issues found" each time, 29, 29 and 7
+  pages, versions assembled at the root, in `1.6/` and in `1.5.0.1/`; clones deleted on Windows.
+- A git reference that does not exist stops the build; `serve` answers 200 on the pages, the
+  search index and the images, 404 on a missing page.
+- Version menu opened in a browser on five pages: same page in the other version when it exists,
+  home page of the version otherwise.
+- Not checked: the rendering of the pages, results of another website's search, a production server.
+
+2026-10-15:
 
 - Pamela `1.6.1`: 29 pages, 20 links fixed, 0 broken link out of 1,377.
 - Earlier versions rebuilt from their branches: `1.6` (29 pages) and `1.5.0.1` (7 pages), with
