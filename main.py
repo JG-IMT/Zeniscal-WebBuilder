@@ -17,21 +17,22 @@ Usage:
     python main.py serve --settings <website_settings.yml> [--port 8000]
         Serves <build folder>/output on http://localhost:<port>/ once the website is built.
 """
+
 import argparse
 import functools
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from webbuilder.repository.git_repository import GitRepository
 from webbuilder.building.website_build import WebsiteBuild
 from webbuilder.preparation.version_site_input import OUTPUT_FOLDER_NAME, VersionSiteInput
+from webbuilder.repository.git_repository import GitRepository
 from webbuilder.settings.website_settings import WebsiteSettings
 
 BUILD_FOLDER_NAME: str = "build"
 DEFAULT_PORT: int = 8000
 
 
-# -- Commands ---------------------------------------------------------------------------
+# -- Commands -------------------------------------------------------------------------------------------
 
 def _prepare(arguments: argparse.Namespace) -> None:
     settings: WebsiteSettings = WebsiteSettings(arguments.settings)
@@ -62,7 +63,7 @@ def _serve(arguments: argparse.Namespace) -> None:
             pass
 
 
-# -- Command line -----------------------------------------------------------------------
+# -- Command line ---------------------------------------------------------------------------------------
 
 def _existing_file(argument: str) -> Path:
     file: Path = Path(argument)
