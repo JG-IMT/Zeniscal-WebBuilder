@@ -62,12 +62,13 @@ class WebsiteInput:
 
     def _write_versions_file(self) -> None:
         """Read by the version menu of every page: the latest version first, then the earlier ones."""
-        latest_version: dict = {"name": self.latest_version, "link": self.settings.site_url}
-        versions: list = copy.deepcopy([latest_version] + self.settings.previous_versions)
-        for version in versions:
-            if version["name"] == self.displayed_version:
-                version["current"] = True
-        (self.input_folder / VERSIONS_FILE_NAME).write_text(json.dumps(versions, indent=2), encoding="utf-8")
+        versions: list = [self.settings.latest_version] + self.settings.earlier_versions
+        menu_entries: list = [
+            {"name": version.name, "link": self.settings.site_url_of(version),
+             "current": version.name == self.displayed_version}
+            for version in versions
+        ]
+        (self.input_folder / VERSIONS_FILE_NAME).write_text(json.dumps(menu_entries, indent=2), encoding="utf-8")
 
     # -- Private: Zensical config -------------------------------------------------------
 
