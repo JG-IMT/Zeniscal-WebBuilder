@@ -3,11 +3,10 @@ import shutil
 import stat
 from pathlib import Path
 
-from webbuilder.repository.git_repository import GitRepository
 from webbuilder.building.version_build import VersionBuild
 from webbuilder.preparation.website_input import OUTPUT_FOLDER_NAME
+from webbuilder.repository.git_repository import GitRepository
 from webbuilder.settings.website_settings import WebsiteSettings
-from webbuilder.settings.website_versions import WebsiteVersion
 
 VERSIONS_FOLDER_NAME: str = "versions"
 
@@ -29,14 +28,12 @@ class WebsiteBuild:
         for version in self.settings.versions:
             version_build: VersionBuild = VersionBuild(self.settings, self.repository, version,
                                                        self.versions_folder / version.name)
-            shutil.copytree(version_build.build(), self._folder_in_output_of(version), dirs_exist_ok=True)
+            version_output_folder: Path = self.output_folder / self.settings.versions.folder_of(version)
+            shutil.copytree(version_build.build(), version_output_folder, dirs_exist_ok=True)
         print(f"Website of {len(self.settings.versions)} version(s) in {self.output_folder}")
         return self.output_folder
 
     # -- Private: folders ---------------------------------------------------------------
-
-    def _folder_in_output_of(self, version: WebsiteVersion) -> Path:
-        return self.output_folder if version.is_latest else self.output_folder / version.name
 
     @staticmethod
     def _delete_folder(folder: Path) -> None:

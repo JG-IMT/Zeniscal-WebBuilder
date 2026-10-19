@@ -8,23 +8,23 @@ class WebsitePathResolver:
 
     A path starting with "/" leads to the root of the domain, not to the root of the website. Each one:
       1. the target is in the website: the path becomes relative to the page
-      2. the path already starts with the project path (/my_project/javadoc/...): unchanged
-      3. otherwise the project path is put in front (/javadoc/... becomes /my_project/javadoc/...),
+      2. the path already starts with the project URL path (/my_project/javadoc/...): unchanged
+      3. otherwise the project URL path is put in front (/javadoc/... becomes /my_project/javadoc/...),
          and a warning names the page and the path
     """
 
-    def __init__(self, input_folder: Path, project_path: str = ""):
+    def __init__(self, input_folder: Path, project_url_path: str = ""):
         self.input_folder: Path = input_folder
-        self.project_path: str = project_path
+        self.project_url_path: str = project_url_path
 
     # -- Public: entry point ------------------------------------------------------------
 
     def resolve(self, link_path_without_first_slash: str, page_file: Path) -> str:
         if self._target_is_in_website(link_path_without_first_slash):
             return self._relative_to_page(link_path_without_first_slash, page_file)
-        if self._needs_no_project_path(link_path_without_first_slash):
+        if self._needs_no_project_url_path(link_path_without_first_slash):
             return "/" + link_path_without_first_slash
-        return self._with_project_path(link_path_without_first_slash, page_file)
+        return self._with_project_url_path(link_path_without_first_slash, page_file)
 
     # -- Private: the three cases -------------------------------------------------------
 
@@ -36,12 +36,12 @@ class WebsitePathResolver:
         page_folder: str = page_file.parent.relative_to(self.input_folder).as_posix()
         return posixpath.relpath(link_path_without_first_slash, start=page_folder)
 
-    def _needs_no_project_path(self, link_path_without_first_slash: str) -> bool:
-        return not self.project_path or link_path_without_first_slash.startswith(self.project_path + "/")
+    def _needs_no_project_url_path(self, link_path_without_first_slash: str) -> bool:
+        return not self.project_url_path or link_path_without_first_slash.startswith(self.project_url_path + "/")
 
-    def _with_project_path(self, link_path_without_first_slash: str, page_file: Path) -> str:
-        link_path_with_project_path: str = f"/{self.project_path}/{link_path_without_first_slash}"
+    def _with_project_url_path(self, link_path_without_first_slash: str, page_file: Path) -> str:
+        link_path_with_project_url_path: str = f"/{self.project_url_path}/{link_path_without_first_slash}"
         page_path_in_website: str = page_file.relative_to(self.input_folder).as_posix()
         original_link_path: str = "/" + link_path_without_first_slash
-        print(f"Warning: {page_path_in_website}: {original_link_path} treated as {link_path_with_project_path}")
-        return link_path_with_project_path
+        print(f"Warning: {page_path_in_website}: {original_link_path} treated as {link_path_with_project_url_path}")
+        return link_path_with_project_url_path

@@ -40,6 +40,18 @@ files at the root of the folder.
   (`GitRepository`), `preparation/` (`WebsiteInput`, `WebsitePathResolver`, `MarkdownPathRewriter`),
   `building/` (`VersionBuild`, `WebsiteBuild`).
 
+- **Settings checked when they are read**: a missing or non-text `site_url`, an empty file, invalid
+  YAML, `extra` or `versions` of the wrong kind, a source without `source` and `destination`, a
+  non-text `repository_url`, an unknown key, a non-boolean `is_latest` or a non-list `navigation` in a
+  version now stop with one line naming the file (some were raw errors, others were accepted).
+- **One owner for the layout of the versions**: `WebsiteVersions.folder_of` ("." for the latest, its
+  name for the others) is used by `site_url_of`, `WebsiteInput` and `WebsiteBuild`, which each wrote
+  the rule themselves.
+- **Names and places**: `WebsiteSettings.values` is `zensical_values`, `project_path` is
+  `project_url_path` (also in `WebsitePathResolver`), `_extract_required_from_extra` is
+  `_pop_required_from_extra`. The folders of the tool (`TOOL_FOLDER`, `SHARED_*`) moved to
+  `webbuilder/shared_files.py`, and reading or writing YAML is private to the class that does it.
+
 #### Removed
 
 - `previous_versions` (links written by hand, replaced by `versions`) and the top-level `nav`.
