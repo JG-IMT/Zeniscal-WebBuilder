@@ -3,10 +3,10 @@ from urllib.parse import urlparse
 
 import yaml
 
-from webbuilder.website_version import WebsiteVersion
+from webbuilder.settings.website_version import WebsiteVersion
 
 
-TOOL_FOLDER: Path = Path(__file__).parent.parent
+TOOL_FOLDER: Path = Path(__file__).parent.parent.parent
 SHARED_FOLDER: Path = TOOL_FOLDER / "shared"
 SHARED_SETTINGS_FILE: Path = SHARED_FOLDER / "site_settings.yml"
 SHARED_STYLE_AND_ICON_FOLDER: Path = SHARED_FOLDER / "style_and_icon"

@@ -30,11 +30,11 @@ import functools
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from webbuilder.git_repository import GitRepository
-from webbuilder.search_index import SEARCH_INDEX_FILE_NAME, SearchIndex
-from webbuilder.website_build import WebsiteBuild
-from webbuilder.website_input import OUTPUT_FOLDER_NAME, WebsiteInput
-from webbuilder.website_settings import WebsiteSettings
+from webbuilder.repository.git_repository import GitRepository
+from webbuilder.search.search_index import SEARCH_INDEX_FILE_NAME, SearchIndex
+from webbuilder.building.website_build import WebsiteBuild
+from webbuilder.preparation.website_input import OUTPUT_FOLDER_NAME, WebsiteInput
+from webbuilder.settings.website_settings import WebsiteSettings
 
 BUILD_FOLDER_NAME: str = "build"
 DEFAULT_PORT: int = 8000

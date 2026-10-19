@@ -3,11 +3,11 @@ import shutil
 import stat
 from pathlib import Path
 
-from webbuilder.git_repository import GitRepository
-from webbuilder.version_build import VersionBuild
-from webbuilder.website_input import OUTPUT_FOLDER_NAME
-from webbuilder.website_settings import WebsiteSettings
-from webbuilder.website_version import WebsiteVersion
+from webbuilder.repository.git_repository import GitRepository
+from webbuilder.building.version_build import VersionBuild
+from webbuilder.preparation.website_input import OUTPUT_FOLDER_NAME
+from webbuilder.settings.website_settings import WebsiteSettings
+from webbuilder.settings.website_version import WebsiteVersion
 
 VERSIONS_FOLDER_NAME: str = "versions"
 

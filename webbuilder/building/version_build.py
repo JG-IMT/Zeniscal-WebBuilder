@@ -2,11 +2,11 @@ import subprocess
 import sys
 from pathlib import Path
 
-from webbuilder.git_repository import GitRepository
-from webbuilder.search_index import SEARCH_INDEX_FILE_NAME, SearchIndex
-from webbuilder.website_input import OUTPUT_FOLDER_NAME, WebsiteInput
-from webbuilder.website_settings import WebsiteSettings
-from webbuilder.website_version import WebsiteVersion
+from webbuilder.repository.git_repository import GitRepository
+from webbuilder.search.search_index import SEARCH_INDEX_FILE_NAME, SearchIndex
+from webbuilder.preparation.website_input import OUTPUT_FOLDER_NAME, WebsiteInput
+from webbuilder.settings.website_settings import WebsiteSettings
+from webbuilder.settings.website_version import WebsiteVersion
 
 REPOSITORY_FOLDER_NAME: str = "repository"
 

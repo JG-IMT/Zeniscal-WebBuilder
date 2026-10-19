@@ -37,6 +37,10 @@ files at the root of the folder.
   path is guessed prints a warning naming the page. Line endings and BOM are kept, a page that is not
   UTF-8 is refused with its name. The Markdown page files are listed by `WebsiteInput`.
 
+- **Code by role** (`webbuilder/`): `settings/` (`WebsiteSettings`, `WebsiteVersion`), `repository/`
+  (`GitRepository`), `preparation/` (`WebsiteInput`, `WebsitePathResolver`, `MarkdownPathRewriter`),
+  `building/` (`VersionBuild`, `WebsiteBuild`), `search/` (`SearchIndex`).
+
 #### Removed
 
 - `previous_versions` (links written by hand, replaced by `versions`) and the top-level `nav`.

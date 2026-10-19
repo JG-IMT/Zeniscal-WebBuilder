@@ -1,7 +1,7 @@
 import re
 from pathlib import Path
 
-from webbuilder.website_path_resolver import WebsitePathResolver
+from webbuilder.preparation.website_path_resolver import WebsitePathResolver
 
 PATH_STARTING_WITH_SLASH: re.Pattern = re.compile(r"""
     (?P<opening> \]\( | \b(?:src|href)=" )

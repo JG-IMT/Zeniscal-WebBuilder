@@ -5,12 +5,12 @@ import posixpath
 import shutil
 from pathlib import Path
 
-from webbuilder.markdown_path_rewriter import MarkdownPathRewriter
-from webbuilder.website_path_resolver import WebsitePathResolver
-from webbuilder.website_settings import (
+from webbuilder.preparation.markdown_path_rewriter import MarkdownPathRewriter
+from webbuilder.preparation.website_path_resolver import WebsitePathResolver
+from webbuilder.settings.website_settings import (
     SHARED_HTML_TEMPLATES_FOLDER, SHARED_STYLE_AND_ICON_FOLDER, WebsiteSettings, write_yaml,
 )
-from webbuilder.website_version import WebsiteVersion
+from webbuilder.settings.website_version import WebsiteVersion
 
 MARKDOWN_EXTENSION: str = ".md"
 INPUT_FOLDER_NAME: str = "input"
