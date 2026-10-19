@@ -24,7 +24,7 @@ from pathlib import Path
 
 from webbuilder.repository.git_repository import GitRepository
 from webbuilder.building.website_build import WebsiteBuild
-from webbuilder.preparation.version_input import OUTPUT_FOLDER_NAME, VersionInput
+from webbuilder.preparation.version_site_input import OUTPUT_FOLDER_NAME, VersionSiteInput
 from webbuilder.settings.website_settings import WebsiteSettings
 
 BUILD_FOLDER_NAME: str = "build"
@@ -37,8 +37,10 @@ def _prepare(arguments: argparse.Namespace) -> None:
     settings: WebsiteSettings = WebsiteSettings(arguments.settings)
     repository_folder: Path = GitRepository.find_repository_root_containing(arguments.settings.parent)
     build_folder: Path = arguments.settings.parent / BUILD_FOLDER_NAME
-    version_input: VersionInput = VersionInput(settings, repository_folder, build_folder, settings.versions.latest)
-    print(f"Zensical config: {version_input.prepare(arguments.clean)}")
+    version_site_input: VersionSiteInput = VersionSiteInput(
+        settings, repository_folder, build_folder, settings.versions.latest
+    )
+    print(f"Zensical config: {version_site_input.prepare(arguments.clean)}")
 
 
 def _build(arguments: argparse.Namespace) -> None:

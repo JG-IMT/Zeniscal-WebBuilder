@@ -4,7 +4,7 @@ import stat
 from pathlib import Path
 
 from webbuilder.building.version_build import VersionBuild
-from webbuilder.preparation.version_input import OUTPUT_FOLDER_NAME
+from webbuilder.preparation.version_site_input import OUTPUT_FOLDER_NAME
 from webbuilder.repository.git_repository import GitRepository
 from webbuilder.settings.website_settings import WebsiteSettings
 

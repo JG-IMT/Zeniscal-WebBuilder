@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 
 from webbuilder.repository.git_repository import GitRepository
-from webbuilder.preparation.version_input import OUTPUT_FOLDER_NAME, VersionInput
+from webbuilder.preparation.version_site_input import OUTPUT_FOLDER_NAME, VersionSiteInput
 from webbuilder.settings.website_settings import WebsiteSettings
 from webbuilder.settings.website_versions import WebsiteVersion
 
@@ -27,9 +27,10 @@ class VersionBuild:
     def build(self) -> Path:
         print(f"Building version {self.version.name} ({self.version.git_ref})")
         self.repository.clone_at(self.version.git_ref, self.repository_folder)
-        version_input: VersionInput = VersionInput(self.settings, self.repository_folder, self.build_folder,
-                                                   self.version)
-        self._run_zensical(version_input.prepare(clean_first=True))
+        version_site_input: VersionSiteInput = VersionSiteInput(
+            self.settings, self.repository_folder, self.build_folder, self.version
+        )
+        self._run_zensical(version_site_input.prepare(clean_first=True))
         return self.output_folder
 
     # -- Private: steps -----------------------------------------------------------------

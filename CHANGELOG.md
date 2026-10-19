@@ -34,10 +34,10 @@ files at the root of the folder.
 - **Paths starting with "/"**: `MarkdownLinks` replaced by `WebsitePathResolver` (decides where a path
   must point) and `MarkdownPathRewriter` (rewrites the paths of the page files). A path whose project
   path is guessed prints a warning naming the page. Line endings and BOM are kept, a page that is not
-  UTF-8 is refused with its name. The Markdown page files are listed by `VersionInput`.
+  UTF-8 is refused with its name. The Markdown page files are listed by `VersionSiteInput`.
 
 - **Code by role** (`webbuilder/`): `settings/` (`WebsiteSettings`, `WebsiteVersion`, `WebsiteVersions`), `repository/`
-  (`GitRepository`), `preparation/` (`VersionInput`, `WebsitePathResolver`, `MarkdownPathRewriter`),
+  (`GitRepository`), `preparation/` (`VersionSiteInput`, `WebsitePathResolver`, `MarkdownPathRewriter`),
   `building/` (`VersionBuild`, `WebsiteBuild`).
 
 - **Settings checked when they are read**: a missing or non-text `site_url`, an empty file, invalid
@@ -45,7 +45,7 @@ files at the root of the folder.
   non-text `repository_url`, an unknown key, a non-boolean `is_latest` or a non-list `navigation` in a
   version now stop with one line naming the file (some were raw errors, others were accepted).
 - **One owner for the layout of the versions**: `WebsiteVersions.folder_of` ("." for the latest, its
-  name for the others) is used by `site_url_of`, `VersionInput` and `WebsiteBuild`, which each wrote
+  name for the others) is used by `site_url_of`, `VersionSiteInput` and `WebsiteBuild`, which each wrote
   the rule themselves.
 - **Names and places**: `WebsiteSettings.values` is `zensical_values`, `project_path` is
   `project_url_path` (also in `WebsitePathResolver`), `_extract_required_from_extra` is
@@ -65,7 +65,7 @@ files at the root of the folder.
 - **Folders**: the shared files moved into `shared/` (`site_settings.yml`, `html_templates/`,
   `style_and_icon/`). `examples/website_settings.yml` is a template for a new repository.
 - **Code in classes** (`webbuilder/`), one role each: `WebsiteSettings` (shared settings completed
-  by the project's), `VersionInput` (input folder and Zensical config), `MarkdownLinks` (links of
+  by the project's), `VersionSiteInput` (input folder and Zensical config), `MarkdownLinks` (links of
   the pages), `SearchIndex` (`search.json`). Same output as the script it replaces.
 - **Code style**: sections `# -- Public / Private --` (public first), explicit steps instead of
   dense one-liners, private helpers as static methods, lines of 120 characters at most.
