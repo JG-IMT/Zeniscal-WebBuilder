@@ -1,6 +1,7 @@
 import copy
 import json
 import os
+import posixpath
 import shutil
 from pathlib import Path
 
@@ -69,11 +70,20 @@ class WebsiteInput:
         """Read by the version menu of every page: the latest version first, then the earlier ones."""
         versions: list = [self.settings.latest_version] + self.settings.earlier_versions
         menu_entries: list = [
-            {"name": version.name, "link": self.settings.site_url_of(version),
+            {"name": version.name, "link": self._path_to_root_of(version),
              "current": version.name == self.version.name}
             for version in versions
         ]
         (self.input_folder / VERSIONS_FILE_NAME).write_text(json.dumps(menu_entries, indent=2), encoding="utf-8")
+
+    def _path_to_root_of(self, target_version: WebsiteVersion) -> str:
+        """From the root of the displayed version: "." for itself, "../1.6" for the folder of another version."""
+        return posixpath.relpath(self._folder_in_website_of(target_version),
+                                 start=self._folder_in_website_of(self.version))
+
+    @staticmethod
+    def _folder_in_website_of(version: WebsiteVersion) -> str:
+        return "." if version.is_latest else version.name
 
     # -- Private: Zensical config -------------------------------------------------------
 
