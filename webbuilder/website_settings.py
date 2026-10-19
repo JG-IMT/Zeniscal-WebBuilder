@@ -57,12 +57,6 @@ class WebsiteSettings:
     def earlier_versions(self) -> list:
         return [version for version in self.versions if not version.is_latest]
 
-    def version_named(self, name: str) -> WebsiteVersion:
-        for version in self.versions:
-            if version.name == name:
-                return version
-        raise SystemExit(f"{self.project_settings_file}: no version named '{name}' under '{VERSIONS_KEY}'")
-
     def site_url_of(self, version: WebsiteVersion) -> str:
         """The latest version is at the root of the website, an earlier one in the folder named after it."""
         site_url: str = self.site_url.rstrip("/") + "/"
