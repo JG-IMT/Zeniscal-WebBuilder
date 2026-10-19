@@ -3,7 +3,6 @@ import sys
 from pathlib import Path
 
 from webbuilder.repository.git_repository import GitRepository
-from webbuilder.search.search_index import SEARCH_INDEX_FILE_NAME, SearchIndex
 from webbuilder.preparation.website_input import OUTPUT_FOLDER_NAME, WebsiteInput
 from webbuilder.settings.website_settings import WebsiteSettings
 from webbuilder.settings.website_version import WebsiteVersion
@@ -31,7 +30,6 @@ class VersionBuild:
         website_input: WebsiteInput = WebsiteInput(self.settings, self.repository_folder, self.build_folder,
                                                    self.version)
         self._run_zensical(website_input.prepare(clean_first=True))
-        self._add_other_websites_to_search_index()
         return self.output_folder
 
     # -- Private: steps -----------------------------------------------------------------
@@ -43,9 +41,3 @@ class VersionBuild:
         )
         if result.returncode != 0:
             raise SystemExit(f"Zensical failed on version {self.version.name}")
-
-    def _add_other_websites_to_search_index(self) -> None:
-        own_site_url: str = self.settings.site_url_of(self.version)
-        search_index: SearchIndex = SearchIndex(self.output_folder / SEARCH_INDEX_FILE_NAME, own_site_url)
-        search_index.add_other_websites(self.settings.other_websites)
-        search_index.save()

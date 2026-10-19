@@ -30,15 +30,9 @@ old `website_settings.yml` (no `versions`), see "Next steps".
 - **Version menu**: the "same page" test asks the server for the page and expects a 404 when it does
   not exist. A server answering 200 with an error page would break it (not checked in production).
   In a `prepare` preview, only the latest version exists.
-- **Global search**:
-  - websites on the same domain only; an unreachable one is skipped with a warning, the build
-    succeeds with a search index missing it (decision: warn, like the existing website);
-  - its pages are downloaded once per version at each build, and are those published at that time
-    (a targeted refresh without rebuilding is wanted);
-  - results of another website were not opened in a browser; this path was never run on a real
-    unreachable site; not wired to Pamela (no `global_search` declared).
-- **`main.py search` is not idempotent**: running it twice on the same `build/output` adds the
-  entries twice. `build` does not have this problem (it runs once per fresh output).
+- **Search across components is not implemented** (removed on 2026-10-19, not ready for production):
+  each version keeps the search of its own pages. To do it later, a site must publish an index of its
+  own pages only, so that the sites do not copy each other's entries.
 - **Links starting with "/"** are fixed silently:
   - a link to a page written as an absolute path (`/getting_started`) is not recognised, only
     targets that exist as files in the website are;
@@ -70,8 +64,7 @@ old `website_settings.yml` (no `versions`), see "Next steps".
 2. **Tags**: ask the person in charge to tag the releases (`1.6.1`, `1.6`); until then the versions
    are built from branches, which move.
 3. **Report the links the build rewrites**, in particular the ones whose target was guessed.
-4. **Targeted refresh of the global search** when another website is rebuilt, without rebuilding
-   the others (their built output must be kept).
+4. **Search across components** (Pamela, Connie, Diana), once the first component is in production.
 5. **Test the tool on Connie**, with a `website_settings.yml` outside its repository first.
 6. **Publishing** and the migration from the copy to `pip` with a tag.
-7. **Automated tests**, starting with `MarkdownLinks`, `SearchIndex` and the checks of `WebsiteSettings`.
+7. **Automated tests**, starting with `WebsitePathResolver`, `MarkdownPathRewriter` and the checks of `WebsiteSettings`.

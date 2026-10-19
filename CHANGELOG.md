@@ -13,8 +13,7 @@ files at the root of the folder.
 - **Versions declared in `website_settings.yml`** (`extra.repository_url`, `extra.versions`): name,
   `git_ref` (branch or tag), `is_latest`, optional `navigation`. Classes `WebsiteVersion` and
   `GitRepository` (shallow clone).
-- **`main.py build`**: clones each version, prepares it, runs Zensical, adds the pages of the other
-  websites to its search index and assembles `build/output` (latest version at the root, the others
+- **`main.py build`**: clones each version, prepares it, runs Zensical and assembles `build/output` (latest version at the root, the others
   in `<name>/`). Classes `VersionBuild` and `WebsiteBuild`. `--repository-url` replaces the declared
   repository (a fork, a local folder).
 - **`main.py serve`**: serves `build/output` on a local port.
@@ -39,11 +38,13 @@ files at the root of the folder.
 
 - **Code by role** (`webbuilder/`): `settings/` (`WebsiteSettings`, `WebsiteVersion`), `repository/`
   (`GitRepository`), `preparation/` (`WebsiteInput`, `WebsitePathResolver`, `MarkdownPathRewriter`),
-  `building/` (`VersionBuild`, `WebsiteBuild`), `search/` (`SearchIndex`).
+  `building/` (`VersionBuild`, `WebsiteBuild`).
 
 #### Removed
 
 - `previous_versions` (links written by hand, replaced by `versions`) and the top-level `nav`.
+- **Search across components**: `SearchIndex`, the `search` command and `extra.global_search`, until it
+  is ready for production. Each version keeps the search of its own pages.
 
 ### 2026-10-15: the tool outside Pamela
 
@@ -69,7 +70,7 @@ files at the root of the folder.
 - **Links starting with "/"** are fixed in the copies of the pages (never in the sources):
   relative when the target is in the website, unchanged when they already start with the project
   path, otherwise the project path is put in front. The project path comes from `homepage`.
-- **Global search** (`main.py search`): the pages of other websites, declared under `global_search`,
+- **Global search** (`main.py search`, removed on 2026-10-19): the pages of other websites, declared under `global_search`,
   are added to `search.json`. Same domain required.
 - **Banner on earlier versions** (`--latest-version`, replaced on 2026-10-19 by `versions`): the menu lists the latest
   version first, the built version is marked as current, and every page links to the latest version.

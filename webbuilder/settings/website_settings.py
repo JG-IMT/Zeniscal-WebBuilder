@@ -15,7 +15,6 @@ SHARED_HTML_TEMPLATES_FOLDER: Path = SHARED_FOLDER / "html_templates"
 SOURCES_KEY: str = "documentation_sources"
 REPOSITORY_URL_KEY: str = "repository_url"
 VERSIONS_KEY: str = "versions"
-GLOBAL_SEARCH_KEY: str = "global_search"
 NAVIGATION_KEY: str = "nav"
 
 
@@ -42,10 +41,6 @@ class WebsiteSettings:
         """The project path on its domain, from "homepage" (https://openflexo.org/my_project/ gives "my_project")."""
         homepage_url: str = self.values["extra"].get("homepage", "")
         return urlparse(homepage_url).path.strip("/")
-
-    @property
-    def other_websites(self) -> list:
-        return self.values["extra"].get(GLOBAL_SEARCH_KEY, [])
 
     # -- Public: versions ---------------------------------------------------------------
 
