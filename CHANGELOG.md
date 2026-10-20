@@ -14,9 +14,9 @@ files at the root of the folder.
   `git_ref` (branch or tag), `is_latest`, optional `navigation`. Classes `WebsiteVersion`, `WebsiteVersions` and
   `GitRepository` (shallow clone).
 - **`main.py build`**: clones each version, prepares it, runs Zensical and assembles `build/website` (latest version at the root, the others
-  in `<name>/`). Classes `VersionBuild` and `WebsiteBuild`. `--repository-url` replaces the declared
+  in `<name>/`). Classes `VersionBuild` and `WebsiteBuild`. `--repository-url` (removed on 2026-10-20) replaced the declared
   repository (a fork, a local folder).
-- **`main.py serve`**: serves `build/website` on http://localhost:8000.
+- **`main.py serve`** (removed on 2026-10-20): served `build/website` on http://localhost:8000.
 - **Checks that stop the build**: version name not text or with forbidden characters, duplicated
   names, not exactly one latest version, a top-level `nav`, a git reference that cannot be cloned,
   a source folder missing, no Markdown page.
@@ -44,7 +44,7 @@ files at the root of the folder.
 - **One owner for the layout of the versions**: `WebsiteVersions.folder_of` ("." for the latest, its
   name for the others) is used by `site_url_of`, `VersionSiteInput` and `WebsiteBuild`, which each wrote
   the rule themselves.
-- **`repository_url` is optional in the settings**: `build --repository-url`
+- **`repository_url` is optional in the settings** (reverted on 2026-10-20, with `--repository-url`): `build --repository-url`
   replaces it. `build` stops with one line if neither gives a repository
   (`WebsiteSettings.repository_url_to_clone`). Less public surface: `WebsiteSettings.site_url` and
   `project_settings_file`, `WebsiteVersions.site_url` and `versions_in_declared_order` are internal,
@@ -60,6 +60,10 @@ files at the root of the folder.
 - **The `prepare` command**, with `--clean` and `GitRepository.find_repository_root_containing`: it only
   served to preview the working folder, `build` produces the whole website. The input folder of a
   version is now always emptied first.
+- **The `serve` command and the `--repository-url` option**: neither is needed to build the website
+  (any web server serves `build/website`, the repository is declared in the settings). `repository_url`
+  is required in the settings again, `WebsiteSettings.repository_url_to_clone` is removed and `main.py`
+  has a single command, `build`.
 - **Search across components**: `SearchIndex`, the `search` command and `extra.global_search`, until it
   is ready for production. Each version keeps the search of its own pages.
 

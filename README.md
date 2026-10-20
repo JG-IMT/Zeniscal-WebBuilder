@@ -18,23 +18,23 @@ On Linux and macOS: `source .venv/bin/activate`.
 ## Build your website
 
 1. Copy `examples/website_settings.yml` into your repository and adapt it (it is commented).
-2. Build, then open http://localhost:8000:
+2. Build:
 
 ```powershell
 python main.py build --settings path\to\website_settings.yml
-python main.py serve --settings path\to\website_settings.yml
 ```
 
-The website is in the `build\website` folder next to `website_settings.yml`.
+The website is in the `build\website` folder next to `website_settings.yml`. To look at it, serve that
+folder with any web server, for example `python -m http.server 8000 --directory build\website`, then open
+http://localhost:8000.
 
 ## Commands
 
-Every command needs `--settings`, the path of your `website_settings.yml`.
+`build` needs `--settings`, the path of your `website_settings.yml`.
 
 | Command | Example | What it does |
 |---|---|---|
-| `build` | `python main.py build --settings website_settings.yml` | Builds every version in `build\website`. `--repository-url <url or folder>` clones that repository instead of the declared one |
-| `serve` | `python main.py serve --settings website_settings.yml` | Serves `build\website` on http://localhost:8000 |
+| `build` | `python main.py build --settings website_settings.yml` | Clones and builds every version declared in the settings, and assembles them in `build\website` |
 
 ## Settings
 
@@ -58,5 +58,5 @@ The latest version is served at `site_url`, the others in `site_url/<name>/`. Qu
 
 ## Good to know
 
-- `build` reads git: commit and push your work first, or add `--repository-url <your folder>`.
+- `build` reads git: commit and push your work first.
 - Links starting with `/` are fixed in the build, the Markdown of your repository is not changed.

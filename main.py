@@ -2,47 +2,28 @@
 Entry point of the website builder.
 
 Usage:
-    python main.py build --settings <website_settings.yml> [--repository-url <url or folder>]
+    python main.py build --settings <website_settings.yml>
         Clones each version declared in website_settings.yml at its git_ref, builds it with Zensical and
         assembles the website in <build folder>/website: the latest version at its root, each earlier
         version in a folder named after it. The "build" folder is created next to website_settings.yml.
-
-    python main.py serve --settings <website_settings.yml>
-        Serves <build folder>/website on http://localhost:8000/ once the website is built.
 """
 
 import argparse
-import functools
-from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from webbuilder.building.website_build import WEBSITE_FOLDER_NAME, WebsiteBuild
+from webbuilder.building.website_build import WebsiteBuild
 from webbuilder.repository.git_repository import GitRepository
 from webbuilder.settings.website_settings import WebsiteSettings
 
 BUILD_FOLDER_NAME: str = "build"
-SERVER_PORT: int = 8000
 
 
 # -- Commands -------------------------------------------------------------------------------------------
 
 def _build(arguments: argparse.Namespace) -> None:
     settings: WebsiteSettings = WebsiteSettings(arguments.settings)
-    git_repository: GitRepository = GitRepository(settings.repository_url_to_clone(arguments.repository_url))
+    git_repository: GitRepository = GitRepository(settings.repository_url)
     WebsiteBuild(settings, git_repository, arguments.settings.parent / BUILD_FOLDER_NAME).build()
-
-
-def _serve(arguments: argparse.Namespace) -> None:
-    website_folder: Path = arguments.settings.parent / BUILD_FOLDER_NAME / WEBSITE_FOLDER_NAME
-    if not website_folder.is_dir():
-        raise SystemExit(f"{website_folder} does not exist: run the build command first")
-    request_handler = functools.partial(SimpleHTTPRequestHandler, directory=str(website_folder))
-    print(f"Serving {website_folder} on http://localhost:{SERVER_PORT}/ (Ctrl+C to stop)")
-    with ThreadingHTTPServer(("localhost", SERVER_PORT), request_handler) as server:
-        try:
-            server.serve_forever()
-        except KeyboardInterrupt:
-            pass
 
 
 # -- Command line ---------------------------------------------------------------------------------------
@@ -58,20 +39,12 @@ def _parse_arguments() -> argparse.Namespace:
     parser: argparse.ArgumentParser = argparse.ArgumentParser(description="Website builder, based on Zensical.")
     commands = parser.add_subparsers(dest="command", required=True)
 
-    # python main.py build --settings website_settings.yml --repository-url https://github.com/my_org/my_project.git
-    # python main.py build --settings website_settings.yml --repository-url ../my_project   (a local folder)
+    # python main.py build --settings website_settings.yml
     build_parser = commands.add_parser("build", help="build every declared version and assemble the website")
-    build_parser.add_argument("--repository-url", help="repository to clone instead of the declared one")
+    build_parser.add_argument("--settings", type=_existing_file, required=True,
+                              help="website_settings.yml of the project")
     build_parser.set_defaults(run=_build)
 
-    # python main.py serve --settings website_settings.yml
-    serve_parser = commands.add_parser("serve", help="serve the built website on http://localhost")
-    serve_parser.set_defaults(run=_serve)
-
-    # --settings is required by every command: python main.py build --settings path/to/website_settings.yml
-    for command_parser in (build_parser, serve_parser):
-        command_parser.add_argument("--settings", type=_existing_file, required=True,
-                                    help="website_settings.yml of the project")
     return parser.parse_args()
 
 
