@@ -13,7 +13,7 @@ files at the root of the folder.
 - **Versions declared in `website_settings.yml`** (`extra.repository_url`, `extra.versions`): name,
   `git_ref` (branch or tag), `is_latest`, optional `navigation`. Classes `WebsiteVersion`, `WebsiteVersions` and
   `GitRepository` (shallow clone).
-- **`main.py build`**: clones each version, prepares it, runs Zensical and assembles `build/website` (latest version at the root, the others
+- **`main.py build`** (run since 2026-10-20 as `main.py --settings`): clones each version, prepares it, runs Zensical and assembles `build/website` (latest version at the root, the others
   in `<name>/`). Classes `VersionBuild` and `WebsiteBuild`. `--repository-url` (removed on 2026-10-20) replaced the declared
   repository (a fork, a local folder).
 - **`main.py serve`** (removed on 2026-10-20): served `build/website` on http://localhost:8000.
@@ -63,7 +63,7 @@ files at the root of the folder.
 - **The `serve` command and the `--repository-url` option**: neither is needed to build the website
   (any web server serves `build/website`, the repository is declared in the settings). `repository_url`
   is required in the settings again, `WebsiteSettings.repository_url_to_clone` is removed and `main.py`
-  has a single command, `build`.
+  does only one thing and is run as `python main.py --settings website_settings.yml`, without a subcommand.
 - **Search across components**: `SearchIndex`, the `search` command and `extra.global_search`, until it
   is ready for production. Each version keeps the search of its own pages.
 

@@ -21,20 +21,21 @@ On Linux and macOS: `source .venv/bin/activate`.
 2. Build:
 
 ```powershell
-python main.py build --settings path\to\website_settings.yml
+python main.py --settings path\to\website_settings.yml
 ```
 
 The website is in the `build\website` folder next to `website_settings.yml`. To look at it, serve that
 folder with any web server, for example `python -m http.server 8000 --directory build\website`, then open
 http://localhost:8000.
 
-## Commands
+## Command line
 
-`build` needs `--settings`, the path of your `website_settings.yml`.
+```powershell
+python main.py --settings website_settings.yml
+```
 
-| Command | Example | What it does |
-|---|---|---|
-| `build` | `python main.py build --settings website_settings.yml` | Clones and builds every version declared in the settings, and assembles them in `build\website` |
+`--settings` is the path of your `website_settings.yml` (required). The command clones and builds every
+version declared in the settings, and assembles them in `build\website`.
 
 ## Settings
 

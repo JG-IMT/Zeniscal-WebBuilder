@@ -2,7 +2,7 @@
 Entry point of the website builder.
 
 Usage:
-    python main.py build --settings <website_settings.yml>
+    python main.py --settings <website_settings.yml>
         Clones each version declared in website_settings.yml at its git_ref, builds it with Zensical and
         assembles the website in <build folder>/website: the latest version at its root, each earlier
         version in a folder named after it. The "build" folder is created next to website_settings.yml.
@@ -18,12 +18,12 @@ from webbuilder.settings.website_settings import WebsiteSettings
 BUILD_FOLDER_NAME: str = "build"
 
 
-# -- Commands -------------------------------------------------------------------------------------------
+# -- Build ----------------------------------------------------------------------------------------------
 
-def _build(arguments: argparse.Namespace) -> None:
-    settings: WebsiteSettings = WebsiteSettings(arguments.settings)
+def _build_website(settings_file: Path) -> None:
+    settings: WebsiteSettings = WebsiteSettings(settings_file)
     git_repository: GitRepository = GitRepository(settings.repository_url)
-    WebsiteBuild(settings, git_repository, arguments.settings.parent / BUILD_FOLDER_NAME).build()
+    WebsiteBuild(settings, git_repository, settings_file.parent / BUILD_FOLDER_NAME).build()
 
 
 # -- Command line ---------------------------------------------------------------------------------------
@@ -36,18 +36,14 @@ def _existing_file(argument: str) -> Path:
 
 
 def _parse_arguments() -> argparse.Namespace:
-    parser: argparse.ArgumentParser = argparse.ArgumentParser(description="Website builder, based on Zensical.")
-    commands = parser.add_subparsers(dest="command", required=True)
-
-    # python main.py build --settings website_settings.yml
-    build_parser = commands.add_parser("build", help="build every declared version and assemble the website")
-    build_parser.add_argument("--settings", type=_existing_file, required=True,
-                              help="website_settings.yml of the project")
-    build_parser.set_defaults(run=_build)
-
+    parser: argparse.ArgumentParser = argparse.ArgumentParser(
+        description="Builds the website, with all its versions, from the Markdown of a repository, using Zensical."
+    )
+    # python main.py --settings website_settings.yml
+    parser.add_argument("--settings", type=_existing_file, required=True, help="website_settings.yml of the project")
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     arguments: argparse.Namespace = _parse_arguments()
-    arguments.run(arguments)
+    _build_website(arguments.settings)

@@ -58,7 +58,7 @@ old `website_settings.yml` (no `versions`), see "Next steps".
 
 1. **Migrate Pamela**: `website_settings.yml` (`repository_url`, `versions` with branches `1.6.1` and
    `1.6` and tag `1.5.0.1`, sources without `../`, the former `nav` as `navigation` of `1.6.1`), Gradle
-   tasks (build with `main.py build`, view with `python -m http.server --directory <build>/website`), new copy of the tool.
+   tasks (build with `main.py --settings`, view with `python -m http.server --directory <build>/website`), new copy of the tool.
 2. **Tags**: ask the person in charge to tag the releases (`1.6.1`, `1.6`); until then the versions
    are built from branches, which move.
 3. **Report the links the build rewrites**, in particular the ones whose target was guessed.
