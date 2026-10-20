@@ -1,6 +1,6 @@
 """
 Rewrites, in the copies of the Markdown pages, the paths that start with "/": finds each path, leaves
-the fenced code blocks alone, asks a WebsitePathResolver where the path must point, and writes the
+the fenced code blocks alone, asks a PagePathResolver where the path must point, and writes the
 page back only when a path changed. Line endings and the BOM are kept. The sources are never changed,
 only the copies it is given.
 """
@@ -8,7 +8,7 @@ only the copies it is given.
 import re
 from pathlib import Path
 
-from webbuilder.preparation.website_path_resolver import WebsitePathResolver
+from webbuilder.preparation.page_path_resolver import PagePathResolver
 
 PATH_STARTING_WITH_SLASH: re.Pattern = re.compile(r"""
     (?P<opening> \]\( | \b(?:src|href)=" )
@@ -18,13 +18,13 @@ PATH_STARTING_WITH_SLASH: re.Pattern = re.compile(r"""
 CODE_BLOCK_MARKER: re.Pattern = re.compile(r"^\s*(```|~~~)")
 
 
-class MarkdownPathRewriter:
-    """Rewrites the paths starting with "/" in Markdown page files, as decided by a WebsitePathResolver."""
+class PagePathRewriter:
+    """Rewrites the paths starting with "/" in Markdown page files, as decided by a PagePathResolver."""
 
     # -- Public: initialization ----------------------------------------------------------------------
 
-    def __init__(self, path_resolver: WebsitePathResolver) -> None:
-        self.path_resolver: WebsitePathResolver = path_resolver
+    def __init__(self, path_resolver: PagePathResolver) -> None:
+        self.path_resolver: PagePathResolver = path_resolver
 
 
     # -- Public: entry point -------------------------------------------------------------------------

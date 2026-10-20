@@ -11,7 +11,7 @@ from pathlib import Path
 from webbuilder.preparation.zensical_input import VERSION_SITE_FOLDER_NAME, ZensicalInput
 from webbuilder.repository.git_repository import GitRepository
 from webbuilder.settings.website_settings import WebsiteSettings
-from webbuilder.settings.website_versions import WebsiteVersion
+from webbuilder.settings.versions_settings import VersionSettings
 
 VERSION_CLONE_FOLDER_NAME: str = "version_clone"
 
@@ -25,12 +25,12 @@ class VersionBuild:
         self,
         settings: WebsiteSettings,
         git_repository: GitRepository,
-        version: WebsiteVersion,
+        version: VersionSettings,
         version_build_folder: Path,
     ) -> None:
         self.settings: WebsiteSettings = settings
         self.git_repository: GitRepository = git_repository
-        self.version: WebsiteVersion = version
+        self.version: VersionSettings = version
         self.version_build_folder: Path = version_build_folder
 
         self.version_clone_folder: Path = version_build_folder / VERSION_CLONE_FOLDER_NAME  # the clone of the version

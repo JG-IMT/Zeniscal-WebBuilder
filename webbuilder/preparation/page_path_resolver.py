@@ -11,7 +11,7 @@ from pathlib import Path
 from urllib.parse import unquote
 
 
-class WebsitePathResolver:
+class PagePathResolver:
     """Decides where a path starting with "/" must point once the Markdown pages are in the website."""
 
     # -- Public: initialization ----------------------------------------------------------------------

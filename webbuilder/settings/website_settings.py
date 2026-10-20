@@ -11,7 +11,7 @@ from urllib.parse import urlparse
 
 import yaml
 
-from webbuilder.settings.website_versions import WebsiteVersions
+from webbuilder.settings.versions_settings import VersionsSettings
 from webbuilder.shared_paths import DEFAULT_SETTINGS_FILE
 
 SOURCES_KEY: str = "documentation_sources"
@@ -38,7 +38,7 @@ class WebsiteSettings:
         self._check_sources_have_source_and_destination()
         self.repository_url: str = self._pop_required_from_extra(REPOSITORY_URL_KEY, "repository to clone")
         declared_versions: list[dict] = self._pop_required_from_extra(VERSIONS_KEY, "versions to build")
-        self.versions: WebsiteVersions = self._create_versions(declared_versions)
+        self.versions: VersionsSettings = self._create_versions(declared_versions)
 
 
     # -- Public: settings ----------------------------------------------------------------------------
@@ -90,9 +90,9 @@ class WebsiteSettings:
         return extra.pop(key)
 
 
-    def _create_versions(self, declared_versions: list[dict]) -> WebsiteVersions:
+    def _create_versions(self, declared_versions: list[dict]) -> VersionsSettings:
         try:
-            return WebsiteVersions(declared_versions, self.zensical_values["site_url"])
+            return VersionsSettings(declared_versions, self.zensical_values["site_url"])
         except ValueError as error:
             raise SystemExit(f"{self._project_settings_file}: {error}")
 

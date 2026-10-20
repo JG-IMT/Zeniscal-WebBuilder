@@ -12,7 +12,7 @@ VERSION_NAME_PATTERN: re.Pattern = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
 VERSION_DECLARATION_KEYS: tuple[str, ...] = ("name", "git_ref", "is_latest", "navigation")
 
 
-class WebsiteVersion:
+class VersionSettings:
     """A version of the documentation: the git reference it is built from, and optionally its own menu."""
 
     # -- Public: initialization ----------------------------------------------------------------------
@@ -64,7 +64,7 @@ class WebsiteVersion:
         return value
 
 
-class WebsiteVersions:
+class VersionsSettings:
     """The versions of a website: the latest is served at the website URL, the others in a folder named after them."""
 
     # -- Public: initialization ----------------------------------------------------------------------
@@ -73,8 +73,8 @@ class WebsiteVersions:
         if not isinstance(declared_versions, list):
             raise ValueError("'versions' must be a list of versions")
         self._site_url: str = site_url.rstrip("/") + "/"
-        self._versions_in_declared_order: list[WebsiteVersion] = [
-            WebsiteVersion(declaration) for declaration in declared_versions
+        self._versions_in_declared_order: list[VersionSettings] = [
+            VersionSettings(declaration) for declaration in declared_versions
         ]
         self._check_names_are_unique()
         self._check_exactly_one_is_latest()
@@ -82,28 +82,28 @@ class WebsiteVersions:
 
     # -- Public: the versions ------------------------------------------------------------------------
 
-    def __iter__(self) -> Iterator[WebsiteVersion]:
+    def __iter__(self) -> Iterator[VersionSettings]:
         return iter(self._versions_in_declared_order)
 
 
     @property
-    def latest(self) -> WebsiteVersion:
+    def latest(self) -> VersionSettings:
         return next(version for version in self if version.is_latest)
 
 
     @property
-    def earlier(self) -> list[WebsiteVersion]:
+    def earlier(self) -> list[VersionSettings]:
         return [version for version in self if not version.is_latest]
 
 
     # -- Public: where a version is in the website ---------------------------------------------------
 
-    def folder_of(self, version: WebsiteVersion) -> str:
+    def folder_of(self, version: VersionSettings) -> str:
         """The folder of the version in the website: "." for the latest, at the root, its name for the others."""
         return "." if version.is_latest else version.name
 
 
-    def site_url_of(self, version: WebsiteVersion) -> str:
+    def site_url_of(self, version: VersionSettings) -> str:
         return urljoin(self._site_url, self.folder_of(version) + "/")
 
 

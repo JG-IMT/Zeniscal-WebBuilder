@@ -71,13 +71,13 @@ Zensical-WebBuilder/
     ├── shared_paths.py                Where the files of shared/ are
     ├── settings/
     │   ├── website_settings.py        Reads website_settings.yml over the shared settings and checks it
-    │   └── website_versions.py        The declared versions: checks them, gives each one its folder and address
+    │   └── versions_settings.py       The declared versions: checks them, gives each one its folder and address
     ├── repository/
     │   └── git_repository.py          Clones a branch or a tag; deletes clones
     ├── preparation/                   From a clone to what Zensical reads
-    │   ├── zensical_input.py           Copies the sources, then writes the menu of versions and Zensical config
-    │   ├── markdown_path_rewriter.py  Rewrites the paths starting with "/" in the pages
-    │   └── website_path_resolver.py   Decides what one such path becomes
+    │   ├── zensical_input.py          Copies the sources, then writes the menu of versions and Zensical config
+    │   ├── page_path_rewriter.py      Rewrites the paths starting with "/" in the pages
+    │   └── page_path_resolver.py      Decides what one such path becomes
     └── building/
         ├── version_build.py           One version: clone, preparation, Zensical
         └── website_build.py           All versions, assembled into build/website
