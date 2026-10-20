@@ -13,10 +13,10 @@ files at the root of the folder.
 - **Versions declared in `website_settings.yml`** (`extra.repository_url`, `extra.versions`): name,
   `git_ref` (branch or tag), `is_latest`, optional `navigation`. Classes `WebsiteVersion`, `WebsiteVersions` and
   `GitRepository` (shallow clone).
-- **`main.py build`**: clones each version, prepares it, runs Zensical and assembles `build/output` (latest version at the root, the others
+- **`main.py build`**: clones each version, prepares it, runs Zensical and assembles `build/website` (latest version at the root, the others
   in `<name>/`). Classes `VersionBuild` and `WebsiteBuild`. `--repository-url` replaces the declared
   repository (a fork, a local folder).
-- **`main.py serve`**: serves `build/output` on http://localhost:8000.
+- **`main.py serve`**: serves `build/website` on http://localhost:8000.
 - **Checks that stop the build**: version name not text or with forbidden characters, duplicated
   names, not exactly one latest version, a top-level `nav`, a git reference that cannot be cloned,
   a source folder missing, no Markdown page.

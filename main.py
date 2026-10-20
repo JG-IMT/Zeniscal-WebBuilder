@@ -11,11 +11,11 @@ Usage:
 
     python main.py build --settings <website_settings.yml> [--repository-url <url or folder>]
         Clones each version declared in website_settings.yml at its git_ref, builds it with Zensical and
-        assembles the website in <build folder>/output: the latest version at its root, each earlier
+        assembles the website in <build folder>/website: the latest version at its root, each earlier
         version in a folder named after it.
 
     python main.py serve --settings <website_settings.yml>
-        Serves <build folder>/output on http://localhost:8000/ once the website is built.
+        Serves <build folder>/website on http://localhost:8000/ once the website is built.
 """
 
 import argparse
@@ -23,8 +23,8 @@ import functools
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from webbuilder.building.website_build import WebsiteBuild
-from webbuilder.preparation.version_site_input import OUTPUT_FOLDER_NAME, VersionSiteInput
+from webbuilder.building.website_build import WEBSITE_FOLDER_NAME, WebsiteBuild
+from webbuilder.preparation.version_site_input import VersionSiteInput
 from webbuilder.repository.git_repository import GitRepository
 from webbuilder.settings.website_settings import WebsiteSettings
 
@@ -51,11 +51,11 @@ def _build(arguments: argparse.Namespace) -> None:
 
 
 def _serve(arguments: argparse.Namespace) -> None:
-    output_folder: Path = arguments.settings.parent / BUILD_FOLDER_NAME / OUTPUT_FOLDER_NAME
-    if not output_folder.is_dir():
-        raise SystemExit(f"{output_folder} does not exist: run the build command first")
-    request_handler = functools.partial(SimpleHTTPRequestHandler, directory=str(output_folder))
-    print(f"Serving {output_folder} on http://localhost:{SERVER_PORT}/ (Ctrl+C to stop)")
+    website_folder: Path = arguments.settings.parent / BUILD_FOLDER_NAME / WEBSITE_FOLDER_NAME
+    if not website_folder.is_dir():
+        raise SystemExit(f"{website_folder} does not exist: run the build command first")
+    request_handler = functools.partial(SimpleHTTPRequestHandler, directory=str(website_folder))
+    print(f"Serving {website_folder} on http://localhost:{SERVER_PORT}/ (Ctrl+C to stop)")
     with ThreadingHTTPServer(("localhost", SERVER_PORT), request_handler) as server:
         try:
             server.serve_forever()

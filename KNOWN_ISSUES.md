@@ -24,7 +24,7 @@ old `website_settings.yml` (no `versions`), see "Next steps".
 - **`build` reads git, not the working folder**: unpushed work is not in the website (use
   `--repository-url <folder>` for committed work, or `prepare` to preview).
 - **`build` clones every version again** (shallow clone, no cache) and stops at the first version
-  that fails: `build/output` is then incomplete.
+  that fails: `build/website` is then incomplete.
 - **Deleting a clone on Windows** uses the `onerror` option of `shutil.rmtree`, deprecated since
   Python 3.12 (a warning today).
 - **Version menu**: the "same page" test asks the server for the page and expects a 404 when it does
