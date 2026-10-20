@@ -16,7 +16,7 @@ import yaml
 from webbuilder.preparation.page_path_rewriter import PagePathRewriter
 from webbuilder.preparation.page_path_resolver import PagePathResolver
 from webbuilder.settings.website_settings import WebsiteSettings
-from webbuilder.settings.versions_settings import VersionSettings, VersionsSettings
+from webbuilder.settings.website_versions import WebsiteVersion, WebsiteVersions
 from webbuilder.shared_paths import SHARED_HTML_TEMPLATES_FOLDER, SHARED_STYLE_AND_ICON_FOLDER
 
 MARKDOWN_EXTENSION: str = ".md"
@@ -36,11 +36,11 @@ class ZensicalInput:
         settings: WebsiteSettings,
         repository_folder: Path,
         build_folder: Path,
-        version: VersionSettings,
+        version: WebsiteVersion,
     ) -> None:
         self.settings: WebsiteSettings = settings
         self.repository_folder: Path = repository_folder  # the clone of the version: its sources
-        self.version: VersionSettings = version
+        self.version: WebsiteVersion = version
 
         self.zensical_input_folder: Path = build_folder / ZENSICAL_INPUT_FOLDER_NAME
         self.zensical_config_file: Path = build_folder / ZENSICAL_CONFIG_FILE_NAME
@@ -108,7 +108,7 @@ class ZensicalInput:
 
     def _write_versions_file(self) -> None:
         """Read by the version menu of every page: the latest version first, then the earlier ones."""
-        versions: list[VersionSettings] = [self.settings.versions.latest] + self.settings.versions.earlier
+        versions: list[WebsiteVersion] = [self.settings.versions.latest] + self.settings.versions.earlier
         menu_entries: list[dict] = [
             {"name": version.name, "link": self._path_to_root_of(version), "current": version.name == self.version.name}
             for version in versions
@@ -117,9 +117,9 @@ class ZensicalInput:
         versions_file.write_text(json.dumps(menu_entries, indent=2), encoding="utf-8")
 
 
-    def _path_to_root_of(self, target_version: VersionSettings) -> str:
+    def _path_to_root_of(self, target_version: WebsiteVersion) -> str:
         """From the root of this version: "." for itself, "../1.6" for the folder of another version."""
-        versions: VersionsSettings = self.settings.versions
+        versions: WebsiteVersions = self.settings.versions
         return posixpath.relpath(versions.folder_of(target_version), start=versions.folder_of(self.version))
 
 
@@ -129,7 +129,7 @@ class ZensicalInput:
         # Paths are relative to the generated config file, which is where Zensical reads them from.
         zensical_config: dict = copy.deepcopy(self.settings.zensical_values)
         templates_path: str = os.path.relpath(SHARED_HTML_TEMPLATES_FOLDER, self.zensical_config_file.parent)
-        latest_version: VersionSettings = self.settings.versions.latest
+        latest_version: WebsiteVersion = self.settings.versions.latest
 
         zensical_config["site_url"] = self.settings.versions.site_url_of(self.version)
         zensical_config["docs_dir"] = ZENSICAL_INPUT_FOLDER_NAME

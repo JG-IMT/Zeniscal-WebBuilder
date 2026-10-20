@@ -1,10 +1,10 @@
 # Website builder
 
-Builds the documentation website of an OpenFlexo component (Pamela, Connie, ...), with all its versions,
+Builds the documentation website of an OpenFlexo project (Pamela, Connie, ...), with all its versions,
 from the Markdown of its git repository, using [Zensical](https://zensical.org). The tool, the theme and
-the OpenFlexo footer are the same for every component: a component only brings a `website_settings.yml`.
+the OpenFlexo footer are the same for every project: a project only brings a `website_settings.yml`.
 
-## What a component needs
+## What a project needs
 
 - a git repository holding its documentation as Markdown files (and the images they use);
 - a `website_settings.yml` saying where the documentation is, which versions to build and how the website
@@ -28,7 +28,7 @@ On Linux and macOS: `source .venv/bin/activate`.
 python main.py --settings path\to\website_settings.yml
 ```
 
-`--settings` is the path of the `website_settings.yml` of the component (required). Every version it
+`--settings` is the path of the `website_settings.yml` of the project (required). Every version it
 declares is cloned from git and built. The website is in the `build\website` folder next to
 `website_settings.yml`: the latest version at its root, each earlier version in a folder named after it.
 To look at it, serve that folder with any web server, for example
@@ -39,17 +39,17 @@ To look at it, serve that folder with any web server, for example
 | Key | Role |
 |---|---|
 | `site_name` | Name of the website (required) |
-| `site_description` | One sentence describing the component (optional) |
+| `site_description` | One sentence describing the project (optional) |
 | `site_url` | Address where the website is published, ending with `/`. The latest version is served there, the others in `site_url/<name>/` |
 | `theme.logo` | Logo of the website: a path inside the website, or an address |
 | `extra.repository_url` | The git repository to clone |
 | `extra.versions` | The versions to build. For each one: `name` (shown in the menu, used as folder name), `git_ref` (a branch or a tag), `is_latest: true` (on exactly one version) and an optional `navigation` (the menu; without it the menu is generated from the pages) |
 | `extra.documentation_sources` | The folders of the repository copied into the website. `source` is relative to the repository root, `destination` is the folder in the website (`.` for its root). A later entry overwrites an earlier one |
-| `extra.homepage` | Home page of the component. Its path completes the paths starting with `/` that lead outside the website (`/javadoc/...` becomes `/<path>/javadoc/...`) |
+| `extra.homepage` | Home page of the project. Its path completes the paths starting with `/` that lead outside the website (`/javadoc/...` becomes `/<path>/javadoc/...`) |
 | `extra.navbar_links` | The links of the top bar |
 
 Quote `name` and `git_ref` (`"1.6"`, otherwise it is read as a number). The settings shared by every
-website (theme, footer, ...) are in `shared/default_settings.yml`; a component can override them in its own
+website (theme, footer, ...) are in `shared/default_settings.yml`; a project can override them in its own
 file. If something is wrong, the build stops and says what.
 
 ## Structure of the tool
@@ -60,7 +60,7 @@ Zensical-WebBuilder/
 ├── requirements.txt                   Python dependencies
 ├── CHANGELOG.md                       Changes of the tool
 ├── examples/
-│   └── website_settings.yml           Commented template for a component
+│   └── website_settings.yml           Commented template for a project
 ├── shared/                            Common to every website
 │   ├── default_settings.yml           Settings every website starts from (theme, footer, ...)
 │   ├── html_templates/                Overrides of the theme pages
@@ -71,7 +71,7 @@ Zensical-WebBuilder/
     ├── shared_paths.py                Where the files of shared/ are
     ├── settings/
     │   ├── website_settings.py        Reads website_settings.yml over the shared settings and checks it
-    │   └── versions_settings.py       The declared versions: checks them, gives each one its folder and address
+    │   └── website_versions.py        The declared versions: checks them, gives each one its folder and address
     ├── repository/
     │   └── git_repository.py          Clones a branch or a tag; deletes clones
     ├── preparation/                   From a clone to what Zensical reads

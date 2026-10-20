@@ -1,15 +1,15 @@
-# Template to copy next to the documentation of a component (website_settings.yml) and adapt.
-site_name: My component
-site_description: One sentence describing the component
+# Template to copy next to the documentation of a project (website_settings.yml) and adapt.
+site_name: My project
+site_description: One sentence describing the project
 # Address where the website is published (sitemap, canonical links, 404 page)
-site_url: https://openflexo.org/my_component/docs/
+site_url: https://openflexo.org/my_project/docs/
 
 theme:
   logo: images/logo.png
 
 extra:
   # Repository the versions are built from
-  repository_url: https://github.com/my_organization/my_component.git
+  repository_url: https://github.com/my_organization/my_project.git
   versions:
     # Exactly one latest version: it is served at site_url, the others in site_url/<name>/
     - name: "2.0"
@@ -30,7 +30,7 @@ extra:
       destination: .
     - source: module_a/docs
       destination: module_a
-  homepage: https://openflexo.org/my_component/
+  homepage: https://openflexo.org/my_project/
   navbar_links:
     - title: Home
       link: https://openflexo.org/
