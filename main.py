@@ -3,10 +3,10 @@ Entry point of the website builder.
 
 Usage:
     python main.py prepare --settings <website_settings.yml> [--clean]
-        Prepares what Zensical needs to preview the latest version: the input folder (the Markdown and
-        images of the repository containing website_settings.yml, as they are now, plus the files shared
-        by every website) and the config file. Everything generated goes to the "build"
-        folder next to website_settings.yml. Then build with:
+        Prepares what Zensical needs to preview the latest version: 
+        - the input folder (the Markdown and images of the repository containing website_settings.yml, plus the files shared by every website)
+        - the config file. 
+        Everything generated goes to the "build" folder next to website_settings.yml. Then build with:
         zensical build -f <build folder>/zensical_config.yml
 
     python main.py build --settings <website_settings.yml> [--repository-url <url or folder>]
@@ -14,8 +14,8 @@ Usage:
         assembles the website in <build folder>/output: the latest version at its root, each earlier
         version in a folder named after it.
 
-    python main.py serve --settings <website_settings.yml> [--port 8000]
-        Serves <build folder>/output on http://localhost:<port>/ once the website is built.
+    python main.py serve --settings <website_settings.yml>
+        Serves <build folder>/output on http://localhost:8000/ once the website is built.
 """
 
 import argparse
@@ -29,7 +29,7 @@ from webbuilder.repository.git_repository import GitRepository
 from webbuilder.settings.website_settings import WebsiteSettings
 
 BUILD_FOLDER_NAME: str = "build"
-DEFAULT_PORT: int = 8000
+SERVER_PORT: int = 8000
 
 
 # -- Commands -------------------------------------------------------------------------------------------
@@ -55,8 +55,8 @@ def _serve(arguments: argparse.Namespace) -> None:
     if not output_folder.is_dir():
         raise SystemExit(f"{output_folder} does not exist: run the build command first")
     request_handler = functools.partial(SimpleHTTPRequestHandler, directory=str(output_folder))
-    print(f"Serving {output_folder} on http://localhost:{arguments.port}/ (Ctrl+C to stop)")
-    with ThreadingHTTPServer(("localhost", arguments.port), request_handler) as server:
+    print(f"Serving {output_folder} on http://localhost:{SERVER_PORT}/ (Ctrl+C to stop)")
+    with ThreadingHTTPServer(("localhost", SERVER_PORT), request_handler) as server:
         try:
             server.serve_forever()
         except KeyboardInterrupt:
@@ -88,9 +88,8 @@ def _parse_arguments() -> argparse.Namespace:
     build_parser.add_argument("--repository-url", help="repository to clone instead of the declared one")
     build_parser.set_defaults(run=_build)
 
-    # python main.py serve --settings website_settings.yml --port 8080
+    # python main.py serve --settings website_settings.yml
     serve_parser = commands.add_parser("serve", help="serve the built website on http://localhost")
-    serve_parser.add_argument("--port", type=int, default=DEFAULT_PORT)
     serve_parser.set_defaults(run=_serve)
     
 
