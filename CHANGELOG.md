@@ -28,9 +28,6 @@ files at the root of the folder.
 #### Changed
 
 - **`documentation_sources` are relative to the repository root**, no longer to `website_settings.yml`.
-- **`prepare`** prepares the latest version from the working folder, to write the documentation.
-  `--version` and `--latest-version` are removed.
-
 - **Paths starting with "/"**: `MarkdownLinks` replaced by `WebsitePathResolver` (decides where a path
   must point) and `MarkdownPathRewriter` (rewrites the paths of the page files). A path whose project
   path is guessed prints a warning naming the page. Line endings and BOM are kept, a page that is not
@@ -47,7 +44,7 @@ files at the root of the folder.
 - **One owner for the layout of the versions**: `WebsiteVersions.folder_of` ("." for the latest, its
   name for the others) is used by `site_url_of`, `VersionSiteInput` and `WebsiteBuild`, which each wrote
   the rule themselves.
-- **`repository_url` is optional in the settings**: `prepare` never needed it and `build --repository-url`
+- **`repository_url` is optional in the settings**: `build --repository-url`
   replaces it. `build` stops with one line if neither gives a repository
   (`WebsiteSettings.repository_url_to_clone`). Less public surface: `WebsiteSettings.site_url` and
   `project_settings_file`, `WebsiteVersions.site_url` and `versions_in_declared_order` are internal,
@@ -60,6 +57,9 @@ files at the root of the folder.
 #### Removed
 
 - `previous_versions` (links written by hand, replaced by `versions`) and the top-level `nav`.
+- **The `prepare` command**, with `--clean` and `GitRepository.find_repository_root_containing`: it only
+  served to preview the working folder, `build` produces the whole website. The input folder of a
+  version is now always emptied first.
 - **Search across components**: `SearchIndex`, the `search` command and `extra.global_search`, until it
   is ready for production. Each version keeps the search of its own pages.
 

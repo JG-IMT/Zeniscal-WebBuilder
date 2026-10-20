@@ -2,17 +2,10 @@
 Entry point of the website builder.
 
 Usage:
-    python main.py prepare --settings <website_settings.yml> [--clean]
-        Prepares what Zensical needs to preview the latest version: 
-        - the input folder (the Markdown and images of the repository containing website_settings.yml, plus the files shared by every website)
-        - the config file. 
-        Everything generated goes to the "build" folder next to website_settings.yml. Then build with:
-        zensical build -f <build folder>/zensical_config.yml
-
     python main.py build --settings <website_settings.yml> [--repository-url <url or folder>]
         Clones each version declared in website_settings.yml at its git_ref, builds it with Zensical and
         assembles the website in <build folder>/website: the latest version at its root, each earlier
-        version in a folder named after it.
+        version in a folder named after it. The "build" folder is created next to website_settings.yml.
 
     python main.py serve --settings <website_settings.yml>
         Serves <build folder>/website on http://localhost:8000/ once the website is built.
@@ -24,7 +17,6 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 from webbuilder.building.website_build import WEBSITE_FOLDER_NAME, WebsiteBuild
-from webbuilder.preparation.version_site_input import VersionSiteInput
 from webbuilder.repository.git_repository import GitRepository
 from webbuilder.settings.website_settings import WebsiteSettings
 
@@ -33,16 +25,6 @@ SERVER_PORT: int = 8000
 
 
 # -- Commands -------------------------------------------------------------------------------------------
-
-def _prepare(arguments: argparse.Namespace) -> None:
-    settings: WebsiteSettings = WebsiteSettings(arguments.settings)
-    repository_folder: Path = GitRepository.find_repository_root_containing(arguments.settings.parent)
-    build_folder: Path = arguments.settings.parent / BUILD_FOLDER_NAME
-    version_site_input: VersionSiteInput = VersionSiteInput(
-        settings, repository_folder, build_folder, settings.versions.latest
-    )
-    print(f"Zensical config: {version_site_input.prepare(arguments.clean)}")
-
 
 def _build(arguments: argparse.Namespace) -> None:
     settings: WebsiteSettings = WebsiteSettings(arguments.settings)
@@ -76,12 +58,6 @@ def _parse_arguments() -> argparse.Namespace:
     parser: argparse.ArgumentParser = argparse.ArgumentParser(description="Website builder, based on Zensical.")
     commands = parser.add_subparsers(dest="command", required=True)
 
-    
-    # python main.py prepare --settings website_settings.yml --clean
-    prepare_parser = commands.add_parser("prepare", help="prepare the input folder and the config of Zensical")
-    prepare_parser.add_argument("--clean", action="store_true", help="delete the input folder first")
-    prepare_parser.set_defaults(run=_prepare)
-
     # python main.py build --settings website_settings.yml --repository-url https://github.com/my_org/my_project.git
     # python main.py build --settings website_settings.yml --repository-url ../my_project   (a local folder)
     build_parser = commands.add_parser("build", help="build every declared version and assemble the website")
@@ -91,10 +67,9 @@ def _parse_arguments() -> argparse.Namespace:
     # python main.py serve --settings website_settings.yml
     serve_parser = commands.add_parser("serve", help="serve the built website on http://localhost")
     serve_parser.set_defaults(run=_serve)
-    
 
     # --settings is required by every command: python main.py build --settings path/to/website_settings.yml
-    for command_parser in (prepare_parser, build_parser, serve_parser):
+    for command_parser in (build_parser, serve_parser):
         command_parser.add_argument("--settings", type=_existing_file, required=True,
                                     help="website_settings.yml of the project")
     return parser.parse_args()

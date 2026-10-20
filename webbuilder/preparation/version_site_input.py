@@ -1,8 +1,7 @@
 """
 Prepares what Zensical needs to build one version of the website: the input folder (the shared
 style and icon, the Markdown pages and images of the version, the menu of versions) and the
-Zensical config file. Independent of how the sources were fetched - the folder holding them
-(a clone of the version, or the working folder) is given.
+Zensical config file. The folder holding the sources of the version (its clone) is given.
 """
 
 import copy
@@ -40,7 +39,7 @@ class VersionSiteInput:
         version: WebsiteVersion,
     ) -> None:
         self.settings: WebsiteSettings = settings
-        self.repository_folder: Path = repository_folder  # the sources of this version: a clone, or the working folder
+        self.repository_folder: Path = repository_folder  # the clone of the version: its sources
         self.version: WebsiteVersion = version
 
         self.zensical_input_folder: Path = build_folder / ZENSICAL_INPUT_FOLDER_NAME
@@ -49,15 +48,14 @@ class VersionSiteInput:
 
     # -- Public: entry point -------------------------------------------------------------------------
 
-    def prepare(self, clean_first: bool) -> Path:
+    def prepare(self) -> Path:
         """
-        Copies the shared style and the declared sources into the input folder, rewrites the paths
-        starting with "/" in the copies of the pages, then writes the menu of versions and the
-        Zensical config. Stops, naming the version, if a source folder is missing or if no Markdown
-        page is found. Returns the Zensical config file.
+        Starts from an empty input folder, copies the shared style and the declared sources into it,
+        rewrites the paths starting with "/" in the copies of the pages, then writes the menu of
+        versions and the Zensical config. Stops, naming the version, if a source folder is missing or
+        if no Markdown page is found. Returns the Zensical config file.
         """
-        if clean_first:
-            self._delete_zensical_input_folder()
+        self._delete_zensical_input_folder()
 
         self._copy_folder(SHARED_STYLE_AND_ICON_FOLDER, self.zensical_input_folder)
         self._copy_declared_sources()
@@ -77,7 +75,6 @@ class VersionSiteInput:
     # -- Private: files ------------------------------------------------------------------------------
 
     def _delete_zensical_input_folder(self) -> None:
-        # Not the default: under a running "zensical serve" the stylesheet would be lost.
         if self.zensical_input_folder.exists():
             shutil.rmtree(self.zensical_input_folder)
 

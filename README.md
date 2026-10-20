@@ -35,7 +35,6 @@ Every command needs `--settings`, the path of your `website_settings.yml`.
 |---|---|---|
 | `build` | `python main.py build --settings website_settings.yml` | Builds every version in `build\website`. `--repository-url <url or folder>` clones that repository instead of the declared one |
 | `serve` | `python main.py serve --settings website_settings.yml` | Serves `build\website` on http://localhost:8000 |
-| `prepare` | `python main.py prepare --settings website_settings.yml --clean` | Prepares the latest version from your working folder, to preview it while writing. `--clean` deletes the input folder first |
 
 ## Settings
 
@@ -60,11 +59,4 @@ The latest version is served at `site_url`, the others in `site_url/<name>/`. Qu
 ## Good to know
 
 - `build` reads git: commit and push your work first, or add `--repository-url <your folder>`.
-- To preview your Markdown while writing, without building the other versions:
-
-```powershell
-python main.py prepare --settings path\to\website_settings.yml
-zensical serve -f path\to\build\zensical_config.yml
-```
-
 - Links starting with `/` are fixed in the build, the Markdown of your repository is not changed.

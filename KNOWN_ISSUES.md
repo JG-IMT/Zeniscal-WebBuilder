@@ -22,14 +22,13 @@ old `website_settings.yml` (no `versions`), see "Next steps".
 
 - **No automated tests.** Checks are done by hand on clones of Pamela (`1.6.1`, `1.6`, `1.5.0.1`).
 - **`build` reads git, not the working folder**: unpushed work is not in the website (use
-  `--repository-url <folder>` for committed work, or `prepare` to preview).
+  `--repository-url <folder>` for committed work).
 - **`build` clones every version again** (shallow clone, no cache) and stops at the first version
   that fails: `build/website` is then incomplete.
 - **Deleting a clone on Windows** uses the `onerror` option of `shutil.rmtree`, deprecated since
   Python 3.12 (a warning today).
 - **Version menu**: the "same page" test asks the server for the page and expects a 404 when it does
   not exist. A server answering 200 with an error page would break it (not checked in production).
-  In a `prepare` preview, only the latest version exists.
 - **Search across components is not implemented** (removed on 2026-10-19, not ready for production):
   each version keeps the search of its own pages. To do it later, a site must publish an index of its
   own pages only, so that the sites do not copy each other's entries.

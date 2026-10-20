@@ -50,7 +50,7 @@ class VersionBuild:
             version_site_input: VersionSiteInput = VersionSiteInput(
                 self.settings, self.version_clone_folder, self.version_build_folder, self.version
             )
-            self._run_zensical(version_site_input.prepare(clean_first=True))
+            self._run_zensical(version_site_input.prepare())
         finally:
             GitRepository.delete_folder_with_clones(self.version_clone_folder)
         return self.version_site_folder
