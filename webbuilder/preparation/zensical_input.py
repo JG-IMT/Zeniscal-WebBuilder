@@ -33,24 +33,24 @@ class ZensicalInput:
 
     def __init__(
         self,
-        settings: WebsiteSettings,
-        repository_folder: Path,
-        build_folder: Path,
+        website_settings: WebsiteSettings,
+        version_clone_folder: Path,
+        version_build_folder: Path,
         version: WebsiteVersion,
     ) -> None:
-        self.settings: WebsiteSettings = settings
-        self.repository_folder: Path = repository_folder  # the clone of the version: its sources
+        self.website_settings: WebsiteSettings = website_settings
+        self.version_clone_folder: Path = version_clone_folder  # the clone of the version: its sources
         self.version: WebsiteVersion = version
 
-        self.zensical_input_folder: Path = build_folder / ZENSICAL_INPUT_FOLDER_NAME
-        self.zensical_config_file: Path = build_folder / ZENSICAL_CONFIG_FILE_NAME
+        self.zensical_input_folder: Path = version_build_folder / ZENSICAL_INPUT_FOLDER_NAME
+        self.zensical_config_file: Path = version_build_folder / ZENSICAL_CONFIG_FILE_NAME
 
 
     # -- Public: entry point -------------------------------------------------------------------------
 
     def prepare(self) -> Path:
         """
-        Copies the shared style and the declared sources into the input folder, rewrites the paths
+        Copies the shared style and the documentation sources into the input folder, rewrites the paths
         starting with "/" in the copies of the pages, then writes the menu of versions and the Zensical
         config. Stops, naming the version, if a source folder is missing or if no Markdown page is
         found. Returns the Zensical config file.
@@ -61,7 +61,7 @@ class ZensicalInput:
 
         markdown_page_files: list[Path] = self._markdown_page_files()
         if not markdown_page_files:
-            raise SystemExit(f"Version {self.version.name}: no Markdown page in the declared sources")
+            raise SystemExit(f"Version {self.version.name}: no Markdown page in the documentation sources")
         self._rewrite_paths_in(markdown_page_files)
 
         self._write_versions_file()
@@ -74,11 +74,11 @@ class ZensicalInput:
     # -- Private: files ------------------------------------------------------------------------------
 
     def _copy_declared_sources(self) -> None:
-        for source_entry in self.settings.sources:
-            source_folder: Path = self.repository_folder / source_entry["source"]
+        for documentation_source in self.website_settings.documentation_sources:
+            source_folder: Path = self.version_clone_folder / documentation_source["source"]
             if not source_folder.is_dir():
-                raise SystemExit(f"Version {self.version.name}: folder '{source_entry['source']}' not found")
-            self._copy_folder(source_folder, self.zensical_input_folder / source_entry["destination"])
+                raise SystemExit(f"Version {self.version.name}: folder '{documentation_source['source']}' not found")
+            self._copy_folder(source_folder, self.zensical_input_folder / documentation_source["destination"])
 
 
     @staticmethod
@@ -99,7 +99,7 @@ class ZensicalInput:
 
     def _rewrite_paths_in(self, markdown_page_files: list[Path]) -> None:
         path_resolver: PagePathResolver = PagePathResolver(
-            self.zensical_input_folder, self.settings.project_url_path
+            self.zensical_input_folder, self.website_settings.project_url_path
         )
         PagePathRewriter(path_resolver).rewrite_paths_in(markdown_page_files)
 
@@ -108,7 +108,8 @@ class ZensicalInput:
 
     def _write_versions_file(self) -> None:
         """Read by the version menu of every page: the latest version first, then the earlier ones."""
-        versions: list[WebsiteVersion] = [self.settings.versions.latest] + self.settings.versions.earlier
+        website_versions: WebsiteVersions = self.website_settings.versions
+        versions: list[WebsiteVersion] = [website_versions.latest] + website_versions.earlier
         menu_entries: list[dict] = [
             {"name": version.name, "link": self._path_to_root_of(version), "current": version.name == self.version.name}
             for version in versions
@@ -119,7 +120,7 @@ class ZensicalInput:
 
     def _path_to_root_of(self, target_version: WebsiteVersion) -> str:
         """From the root of this version: "." for itself, "../1.6" for the folder of another version."""
-        versions: WebsiteVersions = self.settings.versions
+        versions: WebsiteVersions = self.website_settings.versions
         return posixpath.relpath(versions.folder_of(target_version), start=versions.folder_of(self.version))
 
 
@@ -127,11 +128,11 @@ class ZensicalInput:
 
     def _write_zensical_config(self) -> None:
         # Paths are relative to the generated config file, which is where Zensical reads them from.
-        zensical_config: dict = copy.deepcopy(self.settings.zensical_values)
+        zensical_config: dict = copy.deepcopy(self.website_settings.zensical_settings)
         templates_path: str = os.path.relpath(SHARED_HTML_TEMPLATES_FOLDER, self.zensical_config_file.parent)
-        latest_version: WebsiteVersion = self.settings.versions.latest
+        latest_version: WebsiteVersion = self.website_settings.versions.latest
 
-        zensical_config["site_url"] = self.settings.versions.site_url_of(self.version)
+        zensical_config["site_url"] = self.website_settings.versions.site_url_of(self.version)
         zensical_config["docs_dir"] = ZENSICAL_INPUT_FOLDER_NAME
         zensical_config["site_dir"] = VERSION_SITE_FOLDER_NAME
         zensical_config["theme"]["custom_dir"] = Path(templates_path).as_posix()
@@ -140,7 +141,7 @@ class ZensicalInput:
         # earlier version linking to the latest one.
         zensical_config["extra"]["displayed_version"] = self.version.name
         zensical_config["extra"]["latest_version"] = latest_version.name
-        zensical_config["extra"]["latest_version_url"] = self.settings.versions.site_url_of(latest_version)
+        zensical_config["extra"]["latest_version_url"] = self.website_settings.versions.site_url_of(latest_version)
 
         if self.version.navigation:
             zensical_config["nav"] = self.version.navigation

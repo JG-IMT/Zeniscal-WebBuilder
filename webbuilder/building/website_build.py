@@ -22,8 +22,8 @@ class WebsiteBuild:
 
     # -- Public: initialization ----------------------------------------------------------------------
 
-    def __init__(self, settings: WebsiteSettings, git_repository: GitRepository, build_folder: Path) -> None:
-        self.settings: WebsiteSettings = settings
+    def __init__(self, website_settings: WebsiteSettings, git_repository: GitRepository, build_folder: Path) -> None:
+        self.website_settings: WebsiteSettings = website_settings
         self.git_repository: GitRepository = git_repository
 
         self.version_builds_folder: Path = build_folder / VERSION_BUILDS_FOLDER_NAME  # one build folder per version
@@ -42,11 +42,11 @@ class WebsiteBuild:
         GitRepository.delete_folder_with_clones(self.version_builds_folder)  # may hold the clones of an older build
         self._delete_folder(self.website_in_progress_folder)
 
-        for version in self.settings.versions:
+        for version in self.website_settings.versions:
             version_build: VersionBuild = VersionBuild(
-                self.settings, self.git_repository, version, self.version_builds_folder / version.name
+                self.website_settings, self.git_repository, version, self.version_builds_folder / version.name
             )
-            version_folder: Path = self.website_in_progress_folder / self.settings.versions.folder_of(version)
+            version_folder: Path = self.website_in_progress_folder / self.website_settings.versions.folder_of(version)
             shutil.copytree(version_build.build(), version_folder, dirs_exist_ok=True)
 
         self._delete_folder(self.website_folder)

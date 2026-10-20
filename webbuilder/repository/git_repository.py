@@ -24,11 +24,11 @@ class GitRepository:
 
     def clone_at(self, git_ref: str, destination_folder: Path) -> None:
         """Clones only the latest state of a branch or a tag (shallow), which is all the build needs."""
-        result: subprocess.CompletedProcess = self._run_git(
+        clone_result: subprocess.CompletedProcess = self._run_git(
             ["clone", "--quiet", "--depth", "1", "--branch", git_ref, self._repository_url, str(destination_folder)]
         )
-        if result.returncode != 0:
-            raise SystemExit(f"Cannot clone {self._repository_url} at '{git_ref}': {result.stderr.strip()}")
+        if clone_result.returncode != 0:
+            raise SystemExit(f"Cannot clone {self._repository_url} at '{git_ref}': {clone_result.stderr.strip()}")
 
 
     @staticmethod

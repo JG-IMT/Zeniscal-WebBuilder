@@ -76,8 +76,8 @@ class WebsiteVersions:
         self._versions_in_declared_order: list[WebsiteVersion] = [
             WebsiteVersion(declaration) for declaration in declared_versions
         ]
-        self._check_names_are_unique()
-        self._check_exactly_one_is_latest()
+        self._check_names()
+        self._check_latest()
 
 
     # -- Public: the versions ------------------------------------------------------------------------
@@ -109,13 +109,13 @@ class WebsiteVersions:
 
     # -- Private: checks -----------------------------------------------------------------------------
 
-    def _check_names_are_unique(self) -> None:
+    def _check_names(self) -> None:
         names: list[str] = [version.name for version in self]
         if len(set(names)) != len(names):
             raise ValueError("version names must be unique")
 
 
-    def _check_exactly_one_is_latest(self) -> None:
+    def _check_latest(self) -> None:
         latest_versions_count: int = sum(version.is_latest for version in self)
         if latest_versions_count != 1:
             raise ValueError(f"exactly one version must have 'is_latest: true' (found {latest_versions_count})")

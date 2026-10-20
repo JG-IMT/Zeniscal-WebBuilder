@@ -23,12 +23,12 @@ class VersionBuild:
 
     def __init__(
         self,
-        settings: WebsiteSettings,
+        website_settings: WebsiteSettings,
         git_repository: GitRepository,
         version: WebsiteVersion,
         version_build_folder: Path,
     ) -> None:
-        self.settings: WebsiteSettings = settings
+        self.website_settings: WebsiteSettings = website_settings
         self.git_repository: GitRepository = git_repository
         self.version: WebsiteVersion = version
         self.version_build_folder: Path = version_build_folder
@@ -48,7 +48,7 @@ class VersionBuild:
         self.git_repository.clone_at(self.version.git_ref, self.version_clone_folder)
         try:
             zensical_input: ZensicalInput = ZensicalInput(
-                self.settings, self.version_clone_folder, self.version_build_folder, self.version
+                self.website_settings, self.version_clone_folder, self.version_build_folder, self.version
             )
             self._run_zensical(zensical_input.prepare())
         finally:
@@ -60,8 +60,8 @@ class VersionBuild:
 
     def _run_zensical(self, zensical_config_file: Path) -> None:
         """Zensical is the one installed for the Python running this tool."""
-        result: subprocess.CompletedProcess = subprocess.run(
+        zensical_result: subprocess.CompletedProcess = subprocess.run(
             [sys.executable, "-m", "zensical", "build", "--clean", "-f", str(zensical_config_file)]
         )
-        if result.returncode != 0:
+        if zensical_result.returncode != 0:
             raise SystemExit(f"Zensical failed on version {self.version.name}")
