@@ -1,49 +1,60 @@
 # Website builder
 
-Builds a documentation website from the Markdown of a repository, with [Zensical](https://zensical.org).
-Needs Python 3.11 or later.
+Builds the documentation website of an OpenFlexo component (Pamela, Connie, ...), with all its versions,
+from the Markdown of its git repository, using [Zensical](https://zensical.org). The tool, the theme and
+the OpenFlexo footer are the same for every component: a component only brings a `website_settings.yml`.
 
-## Structure
+## What a component needs
 
+- a git repository holding its documentation as Markdown files (and the images they use);
+- a `website_settings.yml` saying where the documentation is, which versions to build and how the website
+  looks. Start from `examples/website_settings.yml`, it is commented.
+
+## Install (once)
+
+Needs Python 3.11 or later and git.
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
 ```
-pamela_website/             belongs to Pamela
-└─ website_settings.yml        name, menu, links, Markdown folders, previous versions
 
-zensical_website_builder/   the tool, the same for every repository
-├─ prepare_website_build.py
-├─ shared_site_settings.yml    theme, footer
-├─ shared_html_templates/
-└─ shared_style_and_icon/
-
-build/website/              generated: input/, zensical_config.yml, output/ (the website)
-```
-
-To document another repository, write its own `website_settings.yml` and run the same tool.
+On Linux and macOS: `source .venv/bin/activate`.
 
 ## Build
 
-```bash
-./gradlew buildDocumentationSite
-```
-
-The website is written to `build/website/output`.
-
-## Preview
-
-From `zensical_website_builder/`. Run the 4th command again after editing a Markdown file.
-
 ```powershell
-python -m venv .venv                                # once
-.venv\Scripts\Activate.ps1                          # each terminal (Linux, macOS: source .venv/bin/activate)
-pip install -r requirements.txt                     # once
-python prepare_website_build.py --settings ../pamela_website/website_settings.yml --build-folder ../build/website
-zensical serve -f ../build/website/zensical_config.yml
+python main.py --settings path\to\website_settings.yml
 ```
 
-Open http://localhost:8000. Without `--version` the navbar shows "dev".
+`--settings` is the path of the `website_settings.yml` of the component (required). Every version it
+declares is cloned from git and built. The website is in the `build\website` folder next to
+`website_settings.yml`: the latest version at its root, each earlier version in a folder named after it.
+To look at it, serve that folder with any web server, for example
+`python -m http.server 8000 --directory build\website`, then open http://localhost:8000.
 
-## Versions
+## Settings
 
-The version menu reads `versions.json`: the current version (`--version`, which Gradle sets from
-the project version), then the `previous_versions` of `website_settings.yml`. Previous versions are
-not rebuilt, the menu links to where they are published.
+| Key | Role |
+|---|---|
+| `site_name` | Name of the website (required) |
+| `site_description` | One sentence describing the component (optional) |
+| `site_url` | Address where the website is published, ending with `/`. The latest version is served there, the others in `site_url/<name>/` |
+| `theme.logo` | Logo of the website: a path inside the website, or an address |
+| `extra.repository_url` | The git repository to clone |
+| `extra.versions` | The versions to build. For each one: `name` (shown in the menu, used as folder name), `git_ref` (a branch or a tag), `is_latest: true` (on exactly one version) and an optional `navigation` (the menu; without it the menu is generated from the pages) |
+| `extra.documentation_sources` | The folders of the repository copied into the website. `source` is relative to the repository root, `destination` is the folder in the website (`.` for its root). A later entry overwrites an earlier one |
+| `extra.homepage` | Home page of the component. Its path completes the paths starting with `/` that lead outside the website (`/javadoc/...` becomes `/<path>/javadoc/...`) |
+| `extra.navbar_links` | The links of the top bar |
+
+Quote `name` and `git_ref` (`"1.6"`, otherwise it is read as a number). The settings shared by every
+website (theme, footer, ...) are in `shared/site_settings.yml`; a component can override them in its own
+file. If something is wrong, the build stops and says what.
+
+## Good to know
+
+- The build reads git: commit and push your work first.
+- Links starting with `/` that lead to a file of the documentation are made relative in the build, the
+  Markdown of your repository is not changed.
+- A build that fails keeps the previous website.
