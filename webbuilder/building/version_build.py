@@ -8,7 +8,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from webbuilder.preparation.version_site_input import VERSION_SITE_FOLDER_NAME, VersionSiteInput
+from webbuilder.preparation.zensical_input import VERSION_SITE_FOLDER_NAME, ZensicalInput
 from webbuilder.repository.git_repository import GitRepository
 from webbuilder.settings.website_settings import WebsiteSettings
 from webbuilder.settings.website_versions import WebsiteVersion
@@ -47,10 +47,10 @@ class VersionBuild:
         print(f"Building version {self.version.name} ({self.version.git_ref})")
         self.git_repository.clone_at(self.version.git_ref, self.version_clone_folder)
         try:
-            version_site_input: VersionSiteInput = VersionSiteInput(
+            zensical_input: ZensicalInput = ZensicalInput(
                 self.settings, self.version_clone_folder, self.version_build_folder, self.version
             )
-            self._run_zensical(version_site_input.prepare())
+            self._run_zensical(zensical_input.prepare())
         finally:
             GitRepository.delete_folder_with_clones(self.version_clone_folder)
         return self.version_site_folder

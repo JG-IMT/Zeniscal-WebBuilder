@@ -1,5 +1,5 @@
 """
-Reads the settings of one website: the settings shared by every website (shared/site_settings.yml)
+Reads the settings of one website: the settings shared by every website (shared/default_settings.yml)
 completed by the settings of the project (website_settings.yml), and checks them when they are read,
 so that a wrong file stops the build with one line naming it. The values Zensical needs stay in
 zensical_values; the settings of this tool - the folders to copy, the repository, the versions - are
@@ -12,7 +12,7 @@ from urllib.parse import urlparse
 import yaml
 
 from webbuilder.settings.website_versions import WebsiteVersions
-from webbuilder.shared_files import SHARED_SETTINGS_FILE
+from webbuilder.shared_paths import DEFAULT_SETTINGS_FILE
 
 SOURCES_KEY: str = "documentation_sources"
 REPOSITORY_URL_KEY: str = "repository_url"
@@ -28,7 +28,7 @@ class WebsiteSettings:
     def __init__(self, project_settings_file: Path) -> None:
         self._project_settings_file: Path = project_settings_file
 
-        shared_settings: dict = self._read_yaml_file(SHARED_SETTINGS_FILE)
+        shared_settings: dict = self._read_yaml_file(DEFAULT_SETTINGS_FILE)
         self.zensical_values: dict = self._merge(shared_settings, self._read_project_settings())
         self._check_site_url_is_text()
         self._check_extra_is_a_mapping()

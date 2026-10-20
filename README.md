@@ -49,8 +49,50 @@ To look at it, serve that folder with any web server, for example
 | `extra.navbar_links` | The links of the top bar |
 
 Quote `name` and `git_ref` (`"1.6"`, otherwise it is read as a number). The settings shared by every
-website (theme, footer, ...) are in `shared/site_settings.yml`; a component can override them in its own
+website (theme, footer, ...) are in `shared/default_settings.yml`; a component can override them in its own
 file. If something is wrong, the build stops and says what.
+
+## Structure of the tool
+
+```text
+Zensical-WebBuilder/
+├── main.py                            Starts the build of the website described by --settings
+├── requirements.txt                   Python dependencies
+├── CHANGELOG.md                       Changes of the tool
+├── examples/
+│   └── website_settings.yml           Commented template for a component
+├── shared/                            Common to every website
+│   ├── default_settings.yml           Settings every website starts from (theme, footer, ...)
+│   ├── html_templates/                Overrides of the theme pages
+│   │   ├── main.html                  Version badge and "no longer maintained" banner
+│   │   └── partials/                  header, navbar_links, version_menu, copyright
+│   └── style_and_icon/                site_style.css and favicon.ico
+└── webbuilder/                        The code
+    ├── shared_paths.py                Where the files of shared/ are
+    ├── settings/
+    │   ├── website_settings.py        Reads website_settings.yml over the shared settings and checks it
+    │   └── website_versions.py        The declared versions: checks them, gives each one its folder and address
+    ├── repository/
+    │   └── git_repository.py          Clones a branch or a tag; deletes clones
+    ├── preparation/                   From a clone to what Zensical reads
+    │   ├── zensical_input.py           Copies the sources, then writes the menu of versions and Zensical config
+    │   ├── markdown_path_rewriter.py  Rewrites the paths starting with "/" in the pages
+    │   └── website_path_resolver.py   Decides what one such path becomes
+    └── building/
+        ├── version_build.py           One version: clone, preparation, Zensical
+        └── website_build.py           All versions, assembled into build/website
+```
+
+A build creates, next to `website_settings.yml`:
+
+```text
+build/
+├── version_builds/<version>/          Kept after the build to see what Zensical was given and produced
+│   ├── zensical_input/                Sources copied and rewritten
+│   ├── zensical_config.yml            Configuration given to Zensical
+│   └── version_site/                  Site built by Zensical (the clone is deleted)
+└── website/                           Result: latest version at the root, the others in <version>/
+```
 
 ## Good to know
 

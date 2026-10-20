@@ -17,7 +17,7 @@ from webbuilder.preparation.markdown_path_rewriter import MarkdownPathRewriter
 from webbuilder.preparation.website_path_resolver import WebsitePathResolver
 from webbuilder.settings.website_settings import WebsiteSettings
 from webbuilder.settings.website_versions import WebsiteVersion, WebsiteVersions
-from webbuilder.shared_files import SHARED_HTML_TEMPLATES_FOLDER, SHARED_STYLE_AND_ICON_FOLDER
+from webbuilder.shared_paths import SHARED_HTML_TEMPLATES_FOLDER, SHARED_STYLE_AND_ICON_FOLDER
 
 MARKDOWN_EXTENSION: str = ".md"
 ZENSICAL_INPUT_FOLDER_NAME: str = "zensical_input"
@@ -26,7 +26,7 @@ ZENSICAL_CONFIG_FILE_NAME: str = "zensical_config.yml"
 VERSIONS_FILE_NAME: str = "versions.json"
 
 
-class VersionSiteInput:
+class ZensicalInput:
     """Prepares the input folder and the Zensical config file from which the site of one version is built."""
 
     # -- Public: initialization ----------------------------------------------------------------------
