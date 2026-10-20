@@ -45,7 +45,7 @@ class WebsiteSettings:
 
     @property
     def project_url_path(self) -> str:
-        """The project path in URLs, from "homepage": https://openflexo.org/my_project/ gives "my_project"."""
+        """The component path in URLs, from "homepage": https://openflexo.org/my_component/ gives "my_component"."""
         homepage_url: str = self.zensical_values["extra"].get("homepage", "")
         return urlparse(homepage_url).path.strip("/")
 
