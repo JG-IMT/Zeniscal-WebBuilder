@@ -22,7 +22,7 @@ BUILD_FOLDER_NAME: str = "build"
 
 def _build_website(project_settings_file: Path) -> None:
     website_settings: WebsiteSettings = WebsiteSettings(project_settings_file)
-    git_repository: GitRepository = GitRepository(website_settings.repository_url)
+    git_repository: GitRepository = GitRepository(website_settings.get_repository_url())
     WebsiteBuild(website_settings, git_repository, project_settings_file.parent / BUILD_FOLDER_NAME).build()
 
 

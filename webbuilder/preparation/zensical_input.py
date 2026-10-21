@@ -4,7 +4,6 @@ style and icon, the Markdown pages and images of the version, the menu of versio
 Zensical config file. The folder holding the sources of the version (its clone) is given.
 """
 
-import copy
 import json
 import os
 import posixpath
@@ -75,7 +74,7 @@ class ZensicalInput:
     # -- Private: files ------------------------------------------------------------------------------
 
     def _copy_declared_sources(self) -> None:
-        for documentation_source in self.website_settings.documentation_sources:
+        for documentation_source in self.website_settings.get_documentation_sources():
             source_folder: Path = self.version_clone_folder / documentation_source["source"]
             if not source_folder.is_dir():
                 raise SystemExit(f"Version {self.version.name}: folder '{documentation_source['source']}' not found")
@@ -100,7 +99,7 @@ class ZensicalInput:
 
     def _rewrite_paths_in(self, markdown_page_files: list[Path]) -> None:
         path_resolver: PagePathResolver = PagePathResolver(
-            self.zensical_input_folder, self.website_settings.project_url_path
+            self.zensical_input_folder, self.website_settings.get_project_url_path()
         )
         PagePathRewriter(path_resolver).rewrite_paths_in(markdown_page_files)
 
@@ -109,7 +108,7 @@ class ZensicalInput:
 
     def _write_versions_file(self) -> None:
         """Read by the version menu of every page: the latest version first, then the earlier ones."""
-        version_catalog: WebsiteVersionCatalog = self.website_settings.version_catalog
+        version_catalog: WebsiteVersionCatalog = self.website_settings.get_version_catalog()
         versions: list[WebsiteVersion] = (
             [version_catalog.get_latest_version()] + version_catalog.get_earlier_versions()
         )
@@ -126,7 +125,7 @@ class ZensicalInput:
 
     def _path_to_root_of(self, target_version: WebsiteVersion) -> str:
         """From the root of this version: "." for itself, "../1.6" for the folder of another version."""
-        version_catalog: WebsiteVersionCatalog = self.website_settings.version_catalog
+        version_catalog: WebsiteVersionCatalog = self.website_settings.get_version_catalog()
         return posixpath.relpath(
             version_catalog.folder_of(target_version), start=version_catalog.folder_of(self.version)
         )
@@ -136,9 +135,9 @@ class ZensicalInput:
 
     def _write_zensical_config(self) -> None:
         # Paths are relative to the generated config file, which is where Zensical reads them from.
-        zensical_config: dict = copy.deepcopy(self.website_settings.zensical_settings)
+        zensical_config: dict = self.website_settings.get_zensical_settings()
         templates_path: str = os.path.relpath(SHARED_HTML_TEMPLATES_FOLDER, self.zensical_config_file.parent)
-        version_catalog: WebsiteVersionCatalog = self.website_settings.version_catalog
+        version_catalog: WebsiteVersionCatalog = self.website_settings.get_version_catalog()
         latest_version: WebsiteVersion = version_catalog.get_latest_version()
 
         zensical_config["site_url"] = version_catalog.site_url_of(self.version)
