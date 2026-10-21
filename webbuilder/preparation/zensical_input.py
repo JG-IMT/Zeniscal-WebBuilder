@@ -7,11 +7,11 @@ Zensical config file. The folder holding the sources of the version (its clone) 
 import json
 import os
 import posixpath
-import shutil
 from pathlib import Path
 
 import yaml
 
+from webbuilder.helper.folder_helper import FolderHelper
 from webbuilder.preparation.page_path_rewriter import PagePathRewriter
 from webbuilder.preparation.page_path_resolver import PagePathResolver
 from webbuilder.settings.website_settings import WebsiteSettings
@@ -42,8 +42,8 @@ class ZensicalInput:
         self.version_clone_folder: Path = version_clone_folder  # the clone of the version: its sources
         self.version: WebsiteVersion = version
 
-        self.zensical_input_folder: Path = version_build_folder / ZENSICAL_INPUT_FOLDER_NAME
-        self.zensical_config_file: Path = version_build_folder / ZENSICAL_CONFIG_FILE_NAME
+        self.zensical_input_folder: Path = version_build_folder.joinpath(ZENSICAL_INPUT_FOLDER_NAME)
+        self.zensical_config_file: Path = version_build_folder.joinpath(ZENSICAL_CONFIG_FILE_NAME)
 
 
     # -- Public: entry point -------------------------------------------------------------------------
@@ -56,7 +56,7 @@ class ZensicalInput:
         found. Returns the Zensical config file.
         """
         # The input folder does not exist yet: WebsiteBuild empties the build folders of the versions first.
-        self._copy_folder(SHARED_STYLE_AND_ICON_FOLDER, self.zensical_input_folder)
+        FolderHelper.copy_folder(SHARED_STYLE_AND_ICON_FOLDER, self.zensical_input_folder)
         self._copy_declared_sources()
 
         markdown_page_files: list[Path] = self._markdown_page_files()
@@ -75,15 +75,10 @@ class ZensicalInput:
 
     def _copy_declared_sources(self) -> None:
         for documentation_source in self.website_settings.get_documentation_sources():
-            source_folder: Path = self.version_clone_folder / documentation_source["source"]
+            source_folder: Path = self.version_clone_folder.joinpath(documentation_source["source"])
             if not source_folder.is_dir():
                 raise SystemExit(f"Version {self.version.get_name()}: folder '{documentation_source['source']}' not found")
-            self._copy_folder(source_folder, self.zensical_input_folder / documentation_source["destination"])
-
-
-    @staticmethod
-    def _copy_folder(source_folder: Path, destination_folder: Path) -> None:
-        shutil.copytree(source_folder, destination_folder, dirs_exist_ok=True)
+            FolderHelper.copy_folder(source_folder, self.zensical_input_folder.joinpath(documentation_source["destination"]))
 
 
     def _markdown_page_files(self) -> list[Path]:
@@ -91,7 +86,7 @@ class ZensicalInput:
         for walked_folder, subfolder_names, file_names in os.walk(self.zensical_input_folder):
             for file_name in file_names:
                 if file_name.endswith(MARKDOWN_EXTENSION):
-                    markdown_page_files.append(Path(walked_folder) / file_name)
+                    markdown_page_files.append(Path(walked_folder).joinpath(file_name))
         return markdown_page_files
 
 
@@ -119,7 +114,7 @@ class ZensicalInput:
                 "link": self._path_to_root_of(version),
                 "current": version.get_name() == self.version.get_name(),
             })
-        versions_file: Path = self.zensical_input_folder / VERSIONS_FILE_NAME
+        versions_file: Path = self.zensical_input_folder.joinpath(VERSIONS_FILE_NAME)
         versions_file.write_text(json.dumps(menu_entries, indent=2), encoding="utf-8")
 
 

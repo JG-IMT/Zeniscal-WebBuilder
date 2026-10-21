@@ -45,7 +45,7 @@ class PagePathResolver:
     def _target_is_in_website(self, link_path_without_first_slash: str) -> bool:
         link_path_without_fragment_or_query: str = re.split(r"[#?]", link_path_without_first_slash)[0]
         target_path: str = unquote(link_path_without_fragment_or_query)  # "my%20image.png" is the file "my image.png"
-        return (self.zensical_input_folder / target_path).exists()
+        return self.zensical_input_folder.joinpath(target_path).exists()
 
 
     def _relative_to_page(self, link_path_without_first_slash: str, page_file: Path) -> str:

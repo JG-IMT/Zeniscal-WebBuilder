@@ -73,8 +73,10 @@ Zensical-WebBuilder/
     │   ├── website_settings.py          Reads website_settings.yml over the shared settings and checks it
     │   ├── website_version.py           One declared version: name, git reference, latest or not, menu; checked
     │   └── website_version_catalog.py   The versions: checks them together, gives each one its folder and address
+    ├── helper/
+    │   └── folder_helper.py             Copies and deletes folders (the only use of shutil)
     ├── repository/
-    │   └── git_repository.py            Clones a branch or a tag; deletes clones
+    │   └── git_repository.py            Clones a branch or a tag
     ├── preparation/                     From a clone to what Zensical reads
     │   ├── zensical_input.py            Copies the sources, then writes the menu of versions and Zensical config
     │   ├── page_path_rewriter.py        Rewrites the paths starting with "/" in the pages

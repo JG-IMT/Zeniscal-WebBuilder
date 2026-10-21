@@ -1,18 +1,15 @@
 """
 The git operations of the website builder, run with the git command of the machine: cloning one version of a
-repository at its git reference, and deleting that clone. A failure stops the build with one line,
-naming what failed.
+repository at its git reference. A failure stops the build with one line, naming what failed.
 """
 
 import os
-import shutil
-import stat
 import subprocess
 from pathlib import Path
 
 
 class GitRepository:
-    """Git operations on a repository: cloning it at a git reference, and deleting a clone."""
+    """Git operations on a repository: cloning it at a git reference."""
 
     # -- Public: initialization ----------------------------------------------------------------------
 
@@ -20,7 +17,7 @@ class GitRepository:
         self._repository_url: str = repository_url  # an address, or a folder on this machine
 
 
-    # -- Public: clone and delete --------------------------------------------------------------------
+    # -- Public: clone -------------------------------------------------------------------------------
 
     def clone_at(self, git_ref: str, destination_folder: Path) -> None:
         """Clones only the latest state of a branch or a tag (shallow), which is all the build needs."""
@@ -37,16 +34,6 @@ class GitRepository:
             raise SystemExit(f"Cannot clone {self._repository_url} at '{git_ref}': {clone_result.stderr.strip()}")
 
 
-    @staticmethod
-    def delete_folder_with_clones(folder: Path) -> None:
-        """
-        Deletes a clone, or a folder holding clones: git writes read-only files in a clone, which
-        Windows refuses to delete as they are.
-        """
-        if folder.exists():
-            shutil.rmtree(folder, onerror=GitRepository._retry_after_making_writable)
-
-
     # -- Private: git --------------------------------------------------------------------------------
 
     @staticmethod
@@ -58,12 +45,3 @@ class GitRepository:
             return subprocess.run(git_command, capture_output=True, text=True, env=git_environment)
         except FileNotFoundError:
             raise SystemExit("git is not installed or not in the PATH")
-
-
-    # -- Private: deleting ---------------------------------------------------------------------------
-
-    @staticmethod
-    def _retry_after_making_writable(delete_function, path: str, _error) -> None:
-        """Called by shutil.rmtree when it cannot delete a path: makes the path writable and deletes it again."""
-        os.chmod(path, stat.S_IWRITE)
-        delete_function(path)

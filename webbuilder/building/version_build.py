@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 
 from webbuilder.preparation.zensical_input import VERSION_SITE_FOLDER_NAME, ZensicalInput
+from webbuilder.helper.folder_helper import FolderHelper
 from webbuilder.repository.git_repository import GitRepository
 from webbuilder.settings.website_settings import WebsiteSettings
 from webbuilder.settings.website_version import WebsiteVersion
@@ -33,8 +34,8 @@ class VersionBuild:
         self.version: WebsiteVersion = version
         self.version_build_folder: Path = version_build_folder
 
-        self.version_clone_folder: Path = version_build_folder / VERSION_CLONE_FOLDER_NAME  # the clone of the version
-        self.version_site_folder: Path = version_build_folder / VERSION_SITE_FOLDER_NAME
+        self.version_clone_folder: Path = version_build_folder.joinpath(VERSION_CLONE_FOLDER_NAME)  # the clone of the version
+        self.version_site_folder: Path = version_build_folder.joinpath(VERSION_SITE_FOLDER_NAME)
 
 
     # -- Public: entry point -------------------------------------------------------------------------
@@ -52,7 +53,7 @@ class VersionBuild:
             )
             self._run_zensical(zensical_input.prepare())
         finally:
-            GitRepository.delete_folder_with_clones(self.version_clone_folder)
+            FolderHelper.delete_folder(self.version_clone_folder)
         return self.version_site_folder
 
 
