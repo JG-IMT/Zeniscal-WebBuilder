@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 
 import yaml
 
-from webbuilder.settings.website_versions import WebsiteVersions
+from webbuilder.settings.website_version_catalog import WebsiteVersionCatalog
 from webbuilder.shared_paths import DEFAULT_SETTINGS_FILE
 
 DOCUMENTATION_SOURCES_KEY: str = "documentation_sources"
@@ -19,7 +19,7 @@ NAVIGATION_KEY: str = "nav"
 
 
 class WebsiteSettings:
-    """Reads the settings shared by every website and complete them by the settings of one project."""
+    """Reads the settings shared by every website and completes them by the settings of one project."""
 
     # -- Public: initialization ----------------------------------------------------------------------
 
@@ -35,10 +35,10 @@ class WebsiteSettings:
         # What only the website builder needs (not Zensical): taken out of the settings above.
         self.documentation_sources: list[dict] = self._extract_documentation_sources()
         self.repository_url: str = self._extract_repository_url()
-        self.versions: WebsiteVersions = self._extract_versions()
+        self.version_catalog: WebsiteVersionCatalog = self._extract_version_catalog()
 
 
-    # -- Public: settings ----------------------------------------------------------------------------
+    # -- Public: project URL path --------------------------------------------------------------------
 
     @property
     def project_url_path(self) -> str:
@@ -74,11 +74,11 @@ class WebsiteSettings:
         return merged_settings
 
 
-    # -- Private: the settings only the website builder needs ----------------------------------------
+    # -- Private: website builder settings -----------------------------------------------------------
 
     def _extract_documentation_sources(self) -> list[dict]:
         """The folders of the repository to copy into the website, each with its 'source' and 'destination'."""
-        documentation_sources: list[dict] = self._pop_requirements_from_extra(
+        documentation_sources: list[dict] = self._extract_key_from_extra(
             DOCUMENTATION_SOURCES_KEY, "folders to copy"
         )
         self._check_documentation_sources(documentation_sources)
@@ -87,27 +87,27 @@ class WebsiteSettings:
 
     def _extract_repository_url(self) -> str:
         """The git repository the versions are cloned from."""
-        return self._pop_requirements_from_extra(REPOSITORY_URL_KEY, "repository to clone")
+        return self._extract_key_from_extra(REPOSITORY_URL_KEY, "repository to clone")
 
 
-    def _extract_versions(self) -> WebsiteVersions:
-        """The versions to build: names, git references, which one is the latest."""
-        declared_versions: list[dict] = self._pop_requirements_from_extra(VERSIONS_KEY, "versions to build")
+    def _extract_version_catalog(self) -> WebsiteVersionCatalog:
+        """The catalog of versions to build: names, git references, which one is the latest version."""
+        declared_versions: list[dict] = self._extract_key_from_extra(VERSIONS_KEY, "versions to build")
         try:
-            return WebsiteVersions(declared_versions, self.zensical_settings["site_url"])
+            return WebsiteVersionCatalog(declared_versions, self.zensical_settings["site_url"])
         except ValueError as error:
             raise SystemExit(f"{self._project_settings_file}: {error}")
 
 
-    def _pop_requirements_from_extra(self, key: str, purpose: str):
-        """Removes the key from 'extra' and returns its value. Throw an error if the key is missing."""
+    def _extract_key_from_extra(self, key: str, purpose: str):
+        """Removes the key from 'extra' and returns its value. Throws an error if the key is missing."""
         extra: dict = self.zensical_settings["extra"]
         if key not in extra:
             raise SystemExit(f"{self._project_settings_file}: no '{key}' under 'extra:' ({purpose})")
         return extra.pop(key)
 
 
-    # -- Private: checks -----------------------------------------------------------------------------
+    # -- Private: Input verification -----------------------------------------------------------------
 
     def _check_zensical_settings(self) -> None:
         self._check_site_url()
@@ -132,13 +132,16 @@ class WebsiteSettings:
 
 
     def _check_documentation_sources(self, documentation_sources: list[dict]) -> None:
-        if not isinstance(documentation_sources, list) or not all(self._has_source_and_destination(entry)
-                                                                  for entry in documentation_sources):
+        is_valid: bool = isinstance(documentation_sources, list)
+        if is_valid:
+            for documentation_source in documentation_sources:
+                if not self._has_source_and_destination(documentation_source):
+                    is_valid = False
+        if not is_valid:
             raise SystemExit(f"{self._project_settings_file}: '{DOCUMENTATION_SOURCES_KEY}' must be a list of entries "
                              "with a 'source' and a 'destination' folder")
 
 
     @staticmethod
     def _has_source_and_destination(entry) -> bool:
-        return isinstance(entry, dict) and isinstance(entry.get("source"), str) \
-            and isinstance(entry.get("destination"), str)
+        return isinstance(entry, dict) and isinstance(entry.get("source"), str) and isinstance(entry.get("destination"), str)

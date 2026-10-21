@@ -16,7 +16,8 @@ import yaml
 from webbuilder.preparation.page_path_rewriter import PagePathRewriter
 from webbuilder.preparation.page_path_resolver import PagePathResolver
 from webbuilder.settings.website_settings import WebsiteSettings
-from webbuilder.settings.website_versions import WebsiteVersion, WebsiteVersions
+from webbuilder.settings.website_version import WebsiteVersion
+from webbuilder.settings.website_version_catalog import WebsiteVersionCatalog
 from webbuilder.shared_paths import SHARED_HTML_TEMPLATES_FOLDER, SHARED_STYLE_AND_ICON_FOLDER
 
 MARKDOWN_EXTENSION: str = ".md"
@@ -108,20 +109,27 @@ class ZensicalInput:
 
     def _write_versions_file(self) -> None:
         """Read by the version menu of every page: the latest version first, then the earlier ones."""
-        website_versions: WebsiteVersions = self.website_settings.versions
-        versions: list[WebsiteVersion] = [website_versions.latest] + website_versions.earlier
-        menu_entries: list[dict] = [
-            {"name": version.name, "link": self._path_to_root_of(version), "current": version.name == self.version.name}
-            for version in versions
-        ]
+        version_catalog: WebsiteVersionCatalog = self.website_settings.version_catalog
+        versions: list[WebsiteVersion] = (
+            [version_catalog.get_latest_version()] + version_catalog.get_earlier_versions()
+        )
+        menu_entries: list[dict] = []
+        for version in versions:
+            menu_entries.append({
+                "name": version.name,
+                "link": self._path_to_root_of(version),
+                "current": version.name == self.version.name,
+            })
         versions_file: Path = self.zensical_input_folder / VERSIONS_FILE_NAME
         versions_file.write_text(json.dumps(menu_entries, indent=2), encoding="utf-8")
 
 
     def _path_to_root_of(self, target_version: WebsiteVersion) -> str:
         """From the root of this version: "." for itself, "../1.6" for the folder of another version."""
-        versions: WebsiteVersions = self.website_settings.versions
-        return posixpath.relpath(versions.folder_of(target_version), start=versions.folder_of(self.version))
+        version_catalog: WebsiteVersionCatalog = self.website_settings.version_catalog
+        return posixpath.relpath(
+            version_catalog.folder_of(target_version), start=version_catalog.folder_of(self.version)
+        )
 
 
     # -- Private: Zensical config --------------------------------------------------------------------
@@ -130,9 +138,10 @@ class ZensicalInput:
         # Paths are relative to the generated config file, which is where Zensical reads them from.
         zensical_config: dict = copy.deepcopy(self.website_settings.zensical_settings)
         templates_path: str = os.path.relpath(SHARED_HTML_TEMPLATES_FOLDER, self.zensical_config_file.parent)
-        latest_version: WebsiteVersion = self.website_settings.versions.latest
+        version_catalog: WebsiteVersionCatalog = self.website_settings.version_catalog
+        latest_version: WebsiteVersion = version_catalog.get_latest_version()
 
-        zensical_config["site_url"] = self.website_settings.versions.site_url_of(self.version)
+        zensical_config["site_url"] = version_catalog.site_url_of(self.version)
         zensical_config["docs_dir"] = ZENSICAL_INPUT_FOLDER_NAME
         zensical_config["site_dir"] = VERSION_SITE_FOLDER_NAME
         zensical_config["theme"]["custom_dir"] = Path(templates_path).as_posix()
@@ -141,7 +150,7 @@ class ZensicalInput:
         # earlier version linking to the latest one.
         zensical_config["extra"]["displayed_version"] = self.version.name
         zensical_config["extra"]["latest_version"] = latest_version.name
-        zensical_config["extra"]["latest_version_url"] = self.website_settings.versions.site_url_of(latest_version)
+        zensical_config["extra"]["latest_version_url"] = version_catalog.site_url_of(latest_version)
 
         if self.version.navigation:
             zensical_config["nav"] = self.version.navigation

@@ -42,11 +42,13 @@ class WebsiteBuild:
         GitRepository.delete_folder_with_clones(self.version_builds_folder)  # may hold the clones of an older build
         self._delete_folder(self.website_in_progress_folder)
 
-        for version in self.website_settings.versions:
+        for version in self.website_settings.version_catalog.get_all_versions():
             version_build: VersionBuild = VersionBuild(
                 self.website_settings, self.git_repository, version, self.version_builds_folder / version.name
             )
-            version_folder: Path = self.website_in_progress_folder / self.website_settings.versions.folder_of(version)
+            version_folder: Path = (
+                self.website_in_progress_folder / self.website_settings.version_catalog.folder_of(version)
+            )
             shutil.copytree(version_build.build(), version_folder, dirs_exist_ok=True)
 
         self._delete_folder(self.website_folder)
