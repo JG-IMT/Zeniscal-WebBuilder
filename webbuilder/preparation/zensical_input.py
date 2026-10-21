@@ -61,7 +61,7 @@ class ZensicalInput:
 
         markdown_page_files: list[Path] = self._markdown_page_files()
         if not markdown_page_files:
-            raise SystemExit(f"Version {self.version.name}: no Markdown page in the documentation sources")
+            raise SystemExit(f"Version {self.version.get_name()}: no Markdown page in the documentation sources")
         self._rewrite_paths_in(markdown_page_files)
 
         self._write_versions_file()
@@ -77,7 +77,7 @@ class ZensicalInput:
         for documentation_source in self.website_settings.get_documentation_sources():
             source_folder: Path = self.version_clone_folder / documentation_source["source"]
             if not source_folder.is_dir():
-                raise SystemExit(f"Version {self.version.name}: folder '{documentation_source['source']}' not found")
+                raise SystemExit(f"Version {self.version.get_name()}: folder '{documentation_source['source']}' not found")
             self._copy_folder(source_folder, self.zensical_input_folder / documentation_source["destination"])
 
 
@@ -115,9 +115,9 @@ class ZensicalInput:
         menu_entries: list[dict] = []
         for version in versions:
             menu_entries.append({
-                "name": version.name,
+                "name": version.get_name(),
                 "link": self._path_to_root_of(version),
-                "current": version.name == self.version.name,
+                "current": version.get_name() == self.version.get_name(),
             })
         versions_file: Path = self.zensical_input_folder / VERSIONS_FILE_NAME
         versions_file.write_text(json.dumps(menu_entries, indent=2), encoding="utf-8")
@@ -147,12 +147,12 @@ class ZensicalInput:
 
         # Read by the page templates (shared/html_templates): the version badge, and the banner of an
         # earlier version linking to the latest one.
-        zensical_config["extra"]["displayed_version"] = self.version.name
-        zensical_config["extra"]["latest_version"] = latest_version.name
+        zensical_config["extra"]["displayed_version"] = self.version.get_name()
+        zensical_config["extra"]["latest_version"] = latest_version.get_name()
         zensical_config["extra"]["latest_version_url"] = version_catalog.site_url_of(latest_version)
 
-        if self.version.navigation:
-            zensical_config["nav"] = self.version.navigation
+        if self.version.get_navigation():
+            zensical_config["nav"] = self.version.get_navigation()
 
         self._write_yaml_file(self.zensical_config_file, zensical_config)
 

@@ -44,8 +44,8 @@ class VersionBuild:
         Clones the version, prepares its input folder, runs Zensical, then deletes the clone - also
         when the build fails. Returns the version site folder, which holds the pages of the version.
         """
-        print(f"Building version {self.version.name} ({self.version.git_ref})")
-        self.git_repository.clone_at(self.version.git_ref, self.version_clone_folder)
+        print(f"Building version {self.version.get_name()} ({self.version.get_git_ref()})")
+        self.git_repository.clone_at(self.version.get_git_ref(), self.version_clone_folder)
         try:
             zensical_input: ZensicalInput = ZensicalInput(
                 self.website_settings, self.version_clone_folder, self.version_build_folder, self.version
@@ -64,4 +64,4 @@ class VersionBuild:
             [sys.executable, "-m", "zensical", "build", "--clean", "-f", str(zensical_config_file)]
         )
         if zensical_result.returncode != 0:
-            raise SystemExit(f"Zensical failed on version {self.version.name}")
+            raise SystemExit(f"Zensical failed on version {self.version.get_name()}")

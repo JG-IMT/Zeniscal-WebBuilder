@@ -44,7 +44,7 @@ class WebsiteBuild:
 
         for version in self.website_settings.get_version_catalog().get_all_versions():
             version_build: VersionBuild = VersionBuild(
-                self.website_settings, self.git_repository, version, self.version_builds_folder / version.name
+                self.website_settings, self.git_repository, version, self.version_builds_folder / version.get_name()
             )
             version_folder: Path = (
                 self.website_in_progress_folder / self.website_settings.get_version_catalog().folder_of(version)

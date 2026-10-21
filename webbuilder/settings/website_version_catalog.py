@@ -32,7 +32,7 @@ class WebsiteVersionCatalog:
     def get_latest_version(self) -> WebsiteVersion:
         """The version served at the website URL."""
         for version in self._versions:
-            if version.is_latest:
+            if version.is_latest():
                 return version
 
 
@@ -40,7 +40,7 @@ class WebsiteVersionCatalog:
         """The versions served in a folder named after them, in the order they are declared."""
         earlier_versions: list[WebsiteVersion] = []
         for version in self._versions:
-            if not version.is_latest:
+            if not version.is_latest():
                 earlier_versions.append(version)
         return earlier_versions
 
@@ -49,27 +49,27 @@ class WebsiteVersionCatalog:
 
     def folder_of(self, version: WebsiteVersion) -> str:
         """The folder of the version in the website: "." for the latest, at the root, its name for the others."""
-        return "." if version.is_latest else version.name
+        return "." if version.is_latest() else version.get_name()
 
 
     def site_url_of(self, version: WebsiteVersion) -> str:
         """The address of the version: the website URL for the latest, then the name of the others."""
-        if version.is_latest:
+        if version.is_latest():
             return self._site_url
-        return f"{self._site_url}{version.name}/"
+        return f"{self._site_url}{version.get_name()}/"
 
 
     # -- Private: creation ---------------------------------------------------------------------------
 
     @staticmethod
     def _create_versions(declared_versions: list[dict]) -> list[WebsiteVersion]:
-        """Creates one version per declaration. Throws an error if 'versions' is not a list."""
+        """Creates one version per declared version. Throws an error if 'versions' is not a list."""
         if not isinstance(declared_versions, list):
             raise ValueError("'versions' must be a list of versions")
 
         versions: list[WebsiteVersion] = []
-        for declaration in declared_versions:
-            versions.append(WebsiteVersion(declaration))
+        for declared_version in declared_versions:
+            versions.append(WebsiteVersion(declared_version))
 
         return versions
 
@@ -79,7 +79,7 @@ class WebsiteVersionCatalog:
     def _check_versions_name(self) -> None:
         names: list[str] = []
         for version in self._versions:
-            names.append(version.name)
+            names.append(version.get_name())
         if len(set(names)) != len(names):
             raise ValueError("version names must be unique")
 
@@ -87,7 +87,7 @@ class WebsiteVersionCatalog:
     def _check_latest_version(self) -> None:
         latest_versions_count: int = 0
         for version in self._versions:
-            if version.is_latest:
+            if version.is_latest():
                 latest_versions_count += 1
         if latest_versions_count != 1:
             raise ValueError(f"exactly one version must have 'is_latest: true' (found {latest_versions_count})")
