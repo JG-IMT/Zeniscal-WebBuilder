@@ -6,6 +6,7 @@ the only place that uses shutil, so every class works on folders the same way.
 import os
 import shutil
 import stat
+from collections.abc import Callable
 from pathlib import Path
 
 
@@ -33,7 +34,7 @@ class FolderHelper:
     # -- Private: deleting ---------------------------------------------------------------------------
 
     @staticmethod
-    def _retry_after_making_writable(delete_function, path: str, _error) -> None:
+    def _retry_after_making_writable(delete_function: Callable[[str], None], path: str, _error: object) -> None:
         """Called by shutil.rmtree when it cannot delete a path: makes the path writable and deletes it again."""
         os.chmod(path, stat.S_IWRITE)
         delete_function(path)

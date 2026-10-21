@@ -47,7 +47,7 @@ class ZensicalInput:
         self._zensical_config_file: Path = version_build_folder.joinpath(ZENSICAL_CONFIG_FILE_NAME)
 
 
-    # -- Public: Preparation -------------------------------------------------------------------------------
+    # -- Public: preparation -------------------------------------------------------------------------
 
     def prepare_input(self) -> None:
         """Prepares the input folder with data: style and icon, pages of the version, menu of versions."""

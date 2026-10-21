@@ -8,8 +8,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-from webbuilder.preparation.zensical_input import VERSION_SITE_FOLDER_NAME, ZensicalInput
 from webbuilder.helper.folder_helper import FolderHelper
+from webbuilder.preparation.zensical_input import VERSION_SITE_FOLDER_NAME, ZensicalInput
 from webbuilder.repository.git_repository import GitRepository
 from webbuilder.settings.website_settings import WebsiteSettings
 from webbuilder.settings.website_version import WebsiteVersion

@@ -1,3 +1,7 @@
+"""
+Where the files shared by every website are: the default settings, the style and icon, the HTML templates.
+"""
+
 from pathlib import Path
 
 SHARED_FOLDER: Path = Path(__file__).resolve().parents[1].joinpath("shared")

@@ -6,6 +6,7 @@ so that a wrong file stops the build with one line naming it.
 
 import copy
 from pathlib import Path
+from typing import Any
 from urllib.parse import urlparse
 
 import yaml
@@ -76,7 +77,7 @@ class WebsiteSettings:
     def _read_settings_file(file: Path) -> dict:
         """Reads a settings file. Throw an error if it is not valid YAML or has no 'key: value' settings."""
         try:
-            file_settings = yaml.safe_load(file.read_text(encoding="utf-8"))
+            file_settings: object = yaml.safe_load(file.read_text(encoding="utf-8"))
         except yaml.YAMLError as error:
             raise SystemExit(f"{file}: not valid YAML ({error})")
         if not isinstance(file_settings, dict):
@@ -89,7 +90,7 @@ class WebsiteSettings:
         """Overrides default settings with project settings, key by key."""
         merged_settings: dict = dict(default_settings)
         for key, project_value in project_settings.items():
-            default_value = default_settings.get(key)
+            default_value: object = default_settings.get(key)
             if isinstance(default_value, dict) and isinstance(project_value, dict):
                 merged_settings[key] = WebsiteSettings._merge_settings(default_value, project_value)
             else:
@@ -122,7 +123,7 @@ class WebsiteSettings:
             raise SystemExit(f"{self._project_settings_file}: {error}")
 
 
-    def _extract_key_from_extra(self, key: str, purpose: str):
+    def _extract_key_from_extra(self, key: str, purpose: str) -> Any:
         """Removes the key from 'extra' and returns its value. Throws an error if the key is missing."""
         extra: dict = self._zensical_settings["extra"]
         if key not in extra:
@@ -130,7 +131,7 @@ class WebsiteSettings:
         return extra.pop(key)
 
 
-    # -- Private: Input verification -----------------------------------------------------------------
+    # -- Private: input verification -----------------------------------------------------------------
 
     def _check_zensical_settings(self) -> None:
         self._check_site_url()
@@ -166,5 +167,5 @@ class WebsiteSettings:
 
 
     @staticmethod
-    def _has_source_and_destination(entry) -> bool:
+    def _has_source_and_destination(entry: object) -> bool:
         return isinstance(entry, dict) and isinstance(entry.get("source"), str) and isinstance(entry.get("destination"), str)

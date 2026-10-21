@@ -18,7 +18,7 @@ class WebsiteVersionCatalog:
     def __init__(self, declared_versions: list[dict], site_url: str) -> None:
         self._site_url: str = site_url.rstrip("/") + "/"  # ends with "/" to add a folder name
         self._versions: list[WebsiteVersion] = self._create_versions(declared_versions)
-        self._check_versions_name()
+        self._check_unique_names()
         self._check_latest_version()
 
 
@@ -76,7 +76,7 @@ class WebsiteVersionCatalog:
 
     # -- Private: checks -----------------------------------------------------------------------------
 
-    def _check_versions_name(self) -> None:
+    def _check_unique_names(self) -> None:
         names: list[str] = []
         for version in self._versions:
             names.append(version.get_name())

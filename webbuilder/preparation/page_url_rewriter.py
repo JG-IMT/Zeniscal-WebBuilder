@@ -24,7 +24,7 @@ class PageUrlRewriter:
     # -- Public: initialization ----------------------------------------------------------------------
 
     def __init__(self, url_resolver: PageUrlResolver) -> None:
-        self.url_resolver: PageUrlResolver = url_resolver
+        self._url_resolver: PageUrlResolver = url_resolver
 
 
     # -- Public: entry point -------------------------------------------------------------------------
@@ -75,7 +75,7 @@ class PageUrlRewriter:
         end_of_previous_url: int = 0
 
         for match in URL_STARTING_WITH_SLASH.finditer(line):
-            resolved_url: str = self.url_resolver.resolve_url(match["url_without_first_slash"], page_file)
+            resolved_url: str = self._url_resolver.resolve_url(match["url_without_first_slash"], page_file)
             text_before_url: str = line[end_of_previous_url:match.start()]
             line_with_rewritten_urls += text_before_url + match["opening"] + resolved_url
             end_of_previous_url = match.end()

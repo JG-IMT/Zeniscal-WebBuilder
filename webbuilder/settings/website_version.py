@@ -70,7 +70,7 @@ class WebsiteVersion:
     @staticmethod
     def _extract_required_text(declared_version: dict, key: str) -> str:
         """The text for the key. Throws an error if the key is missing or is not text."""
-        declared_value = declared_version.get(key)
+        declared_value: object = declared_version.get(key)
         if not isinstance(declared_value, str):
             raise ValueError(f"version {declared_version}: '{key}' is required and must be text (quote it: \"1.6\")")
         return declared_value
@@ -81,7 +81,7 @@ class WebsiteVersion:
         """The true or false written for the key, or False if the key is missing. Throws an error otherwise."""
         if key not in declared_version:
             return False
-        declared_value = declared_version[key]
+        declared_value: object = declared_version[key]
         if not isinstance(declared_value, bool):
             raise ValueError(f"version {declared_version}: '{key}' must be true or false")
         return declared_value
@@ -90,7 +90,7 @@ class WebsiteVersion:
     @staticmethod
     def _extract_optional_list(declared_version: dict, key: str) -> list | None:
         """The list written for the key, or None if the key is missing or empty. Throws an error otherwise."""
-        declared_value = declared_version.get(key)
+        declared_value: object = declared_version.get(key)
         if declared_value is None:
             return None
         if not isinstance(declared_value, list):
