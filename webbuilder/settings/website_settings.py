@@ -30,7 +30,7 @@ class WebsiteSettings:
         # What Zensical receives: the default settings overridden by the project settings.
         default_settings: dict = self._read_settings_file(DEFAULT_SETTINGS_FILE)
         project_settings: dict = self._read_settings_file(self._project_settings_file)
-        self._zensical_settings: dict = self._merge(default_settings, project_settings)
+        self._zensical_settings: dict = self._merge_settings(default_settings, project_settings)
         self._check_zensical_settings()
 
         # What only the website builder needs (not Zensical): taken out of the settings above.
@@ -85,13 +85,13 @@ class WebsiteSettings:
 
 
     @staticmethod
-    def _merge(default_settings: dict, project_settings: dict) -> dict:
+    def _merge_settings(default_settings: dict, project_settings: dict) -> dict:
         """Overrides default settings with project settings, key by key."""
         merged_settings: dict = dict(default_settings)
         for key, project_value in project_settings.items():
             default_value = default_settings.get(key)
             if isinstance(default_value, dict) and isinstance(project_value, dict):
-                merged_settings[key] = WebsiteSettings._merge(default_value, project_value)
+                merged_settings[key] = WebsiteSettings._merge_settings(default_value, project_value)
             else:
                 merged_settings[key] = project_value
         return merged_settings

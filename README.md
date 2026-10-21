@@ -45,7 +45,7 @@ To look at it, serve that folder with any web server, for example
 | `extra.repository_url` | The git repository to clone |
 | `extra.versions` | The versions to build. For each one: `name` (shown in the menu, used as folder name), `git_ref` (a branch or a tag), `is_latest: true` (on exactly one version) and an optional `navigation` (the menu; without it the menu is generated from the pages) |
 | `extra.documentation_sources` | The folders of the repository copied into the website. `source` is relative to the repository root, `destination` is the folder in the website (`.` for its root). A later entry overwrites an earlier one |
-| `extra.homepage` | Home page of the project. Its path completes the paths starting with `/` that lead outside the website (`/javadoc/...` becomes `/<path>/javadoc/...`) |
+| `extra.homepage` | Home page of the project. Its path completes the URLs starting with `/` that lead outside the website (`/javadoc/...` becomes `/<path>/javadoc/...`) |
 | `extra.navbar_links` | The links of the top bar |
 
 Quote `name` and `git_ref` (`"1.6"`, otherwise it is read as a number). The settings shared by every
@@ -79,8 +79,8 @@ Zensical-WebBuilder/
     │   └── git_repository.py            Clones a branch or a tag
     ├── preparation/                     From a clone to what Zensical reads
     │   ├── zensical_input.py            Copies the sources, then writes the menu of versions and Zensical config
-    │   ├── page_path_rewriter.py        Rewrites the paths starting with "/" in the pages
-    │   └── page_path_resolver.py        Decides what one such path becomes
+    │   ├── page_url_rewriter.py         Rewrites the URLs starting with "/" in the pages
+    │   └── page_url_resolver.py         Decides what one such URL becomes
     └── building/
         ├── version_build.py             One version: clone, preparation, Zensical
         └── website_build.py             All versions, assembled into build/website

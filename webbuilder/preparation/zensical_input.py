@@ -12,8 +12,8 @@ from pathlib import Path
 import yaml
 
 from webbuilder.helper.folder_helper import FolderHelper
-from webbuilder.preparation.page_path_rewriter import PagePathRewriter
-from webbuilder.preparation.page_path_resolver import PagePathResolver
+from webbuilder.preparation.page_url_rewriter import PageUrlRewriter
+from webbuilder.preparation.page_url_resolver import PageUrlResolver
 from webbuilder.settings.website_settings import WebsiteSettings
 from webbuilder.settings.website_version import WebsiteVersion
 from webbuilder.settings.website_version_catalog import WebsiteVersionCatalog
@@ -38,121 +38,141 @@ class ZensicalInput:
         version_build_folder: Path,
         version: WebsiteVersion,
     ) -> None:
-        self.website_settings: WebsiteSettings = website_settings
-        self.version_clone_folder: Path = version_clone_folder  # the clone of the version: its sources
-        self.version: WebsiteVersion = version
+        self._website_settings: WebsiteSettings = website_settings
+        self._version_clone_folder: Path = version_clone_folder  # the clone of the version: its sources
+        self._version: WebsiteVersion = version
+        self._version_catalog: WebsiteVersionCatalog = website_settings.get_version_catalog()
 
-        self.zensical_input_folder: Path = version_build_folder.joinpath(ZENSICAL_INPUT_FOLDER_NAME)
-        self.zensical_config_file: Path = version_build_folder.joinpath(ZENSICAL_CONFIG_FILE_NAME)
+        self._zensical_input_folder: Path = version_build_folder.joinpath(ZENSICAL_INPUT_FOLDER_NAME)
+        self._zensical_config_file: Path = version_build_folder.joinpath(ZENSICAL_CONFIG_FILE_NAME)
 
 
-    # -- Public: entry point -------------------------------------------------------------------------
+    # -- Public: Preparation -------------------------------------------------------------------------------
 
-    def prepare(self) -> Path:
-        """
-        Copies the shared style and the documentation sources into the input folder, rewrites the paths
-        starting with "/" in the copies of the pages, then writes the menu of versions and the Zensical
-        config. Stops, naming the version, if a source folder is missing or if no Markdown page is
-        found. Returns the Zensical config file.
-        """
+    def prepare_input(self) -> None:
+        """Prepares the input folder with data: style and icon, pages of the version, menu of versions."""
         # The input folder does not exist yet: WebsiteBuild empties the build folders of the versions first.
-        FolderHelper.copy_folder(SHARED_STYLE_AND_ICON_FOLDER, self.zensical_input_folder)
-        self._copy_declared_sources()
+        self._copy_style_and_icon()
+        self._copy_documentation_sources()
 
-        markdown_page_files: list[Path] = self._markdown_page_files()
-        if not markdown_page_files:
-            raise SystemExit(f"Version {self.version.get_name()}: no Markdown page in the documentation sources")
-        self._rewrite_paths_in(markdown_page_files)
+        markdown_page_files: list[Path] = self._find_markdown_pages()
+        self._rewrite_urls(markdown_page_files)
+        print(f"Prepared {len(markdown_page_files)} Markdown pages in {self._zensical_input_folder}")
 
         self._write_versions_file()
-        self._write_zensical_config()
-
-        print(f"Prepared {len(markdown_page_files)} Markdown pages in {self.zensical_input_folder}")
-        return self.zensical_config_file
 
 
-    # -- Private: files ------------------------------------------------------------------------------
+    def write_config(self) -> Path:
+        """Writes the settings Zensical receives, completed with what is specific to this version. Returns the file."""
+        zensical_config: dict = self._website_settings.get_zensical_settings()
+        self._set_site_url(zensical_config)
+        self._set_folders(zensical_config)
+        self._set_displayed_versions(zensical_config)
+        self._set_navigation(zensical_config)
 
-    def _copy_declared_sources(self) -> None:
-        for documentation_source in self.website_settings.get_documentation_sources():
-            source_folder: Path = self.version_clone_folder.joinpath(documentation_source["source"])
+        self._write_yaml_file(self._zensical_config_file, zensical_config)
+        return self._zensical_config_file
+
+
+    # -- Private: input folder -----------------------------------------------------------------------
+
+    def _copy_style_and_icon(self) -> None:
+        """Copies the style and the icon shared by every website."""
+        FolderHelper.copy_folder(SHARED_STYLE_AND_ICON_FOLDER, self._zensical_input_folder)
+
+
+    def _copy_documentation_sources(self) -> None:
+        """Copies each documentation source of the clone to its destination. Throws an error if a source is missing."""
+        for documentation_source in self._website_settings.get_documentation_sources():
+            source_folder: Path = self._version_clone_folder.joinpath(documentation_source["source"])
             if not source_folder.is_dir():
-                raise SystemExit(f"Version {self.version.get_name()}: folder '{documentation_source['source']}' not found")
-            FolderHelper.copy_folder(source_folder, self.zensical_input_folder.joinpath(documentation_source["destination"]))
+                raise SystemExit(f"Version {self._version.get_name()}: folder '{documentation_source['source']}' not found")
+            FolderHelper.copy_folder(source_folder, self._zensical_input_folder.joinpath(documentation_source["destination"]))
 
 
-    def _markdown_page_files(self) -> list[Path]:
+    def _find_markdown_pages(self) -> list[Path]:
+        """The Markdown pages in the input folder. Throws an error if there is none."""
         markdown_page_files: list[Path] = []
-        for walked_folder, subfolder_names, file_names in os.walk(self.zensical_input_folder):
+        for walked_folder, subfolder_names, file_names in os.walk(self._zensical_input_folder):
             for file_name in file_names:
                 if file_name.endswith(MARKDOWN_EXTENSION):
                     markdown_page_files.append(Path(walked_folder).joinpath(file_name))
+        if not markdown_page_files:
+            raise SystemExit(f"Version {self._version.get_name()}: no Markdown page in the documentation sources")
         return markdown_page_files
 
 
-    # -- Private: pages ------------------------------------------------------------------------------
-
-    def _rewrite_paths_in(self, markdown_page_files: list[Path]) -> None:
-        path_resolver: PagePathResolver = PagePathResolver(
-            self.zensical_input_folder, self.website_settings.get_project_url_path()
+    def _rewrite_urls(self, markdown_page_files: list[Path]) -> None:
+        """Rewrites the URLs starting with "/" in the copies of the pages."""
+        url_resolver: PageUrlResolver = PageUrlResolver(
+            self._zensical_input_folder, self._website_settings.get_project_url_path()
         )
-        PagePathRewriter(path_resolver).rewrite_paths_in(markdown_page_files)
+        PageUrlRewriter(url_resolver).rewrite_urls_in(markdown_page_files)
 
 
     # -- Private: menu of versions -------------------------------------------------------------------
 
     def _write_versions_file(self) -> None:
         """Read by the version menu of every page: the latest version first, then the earlier ones."""
-        version_catalog: WebsiteVersionCatalog = self.website_settings.get_version_catalog()
         versions: list[WebsiteVersion] = (
-            [version_catalog.get_latest_version()] + version_catalog.get_earlier_versions()
+            [self._version_catalog.get_latest_version()] + self._version_catalog.get_earlier_versions()
         )
         menu_entries: list[dict] = []
         for version in versions:
             menu_entries.append({
                 "name": version.get_name(),
-                "link": self._path_to_root_of(version),
-                "current": version.get_name() == self.version.get_name(),
+                "link": self._url_to_root_of(version),
+                "current": version.get_name() == self._version.get_name(),
             })
-        versions_file: Path = self.zensical_input_folder.joinpath(VERSIONS_FILE_NAME)
+        versions_file: Path = self._zensical_input_folder.joinpath(VERSIONS_FILE_NAME)
         versions_file.write_text(json.dumps(menu_entries, indent=2), encoding="utf-8")
 
 
-    def _path_to_root_of(self, target_version: WebsiteVersion) -> str:
+    def _url_to_root_of(self, target_version: WebsiteVersion) -> str:
         """From the root of this version: "." for itself, "../1.6" for the folder of another version."""
-        version_catalog: WebsiteVersionCatalog = self.website_settings.get_version_catalog()
         return posixpath.relpath(
-            version_catalog.folder_of(target_version), start=version_catalog.folder_of(self.version)
+            self._version_catalog.folder_of(target_version), start=self._version_catalog.folder_of(self._version)
         )
 
 
     # -- Private: Zensical config --------------------------------------------------------------------
 
-    def _write_zensical_config(self) -> None:
-        # Paths are relative to the generated config file, which is where Zensical reads them from.
-        zensical_config: dict = self.website_settings.get_zensical_settings()
-        templates_path: str = os.path.relpath(SHARED_HTML_TEMPLATES_FOLDER, self.zensical_config_file.parent)
-        version_catalog: WebsiteVersionCatalog = self.website_settings.get_version_catalog()
-        latest_version: WebsiteVersion = version_catalog.get_latest_version()
+    def _set_site_url(self, zensical_config: dict) -> None:
+        """Sets the address of this version in the website."""
+        zensical_config["site_url"] = self._version_catalog.site_url_of(self._version)
 
-        zensical_config["site_url"] = version_catalog.site_url_of(self.version)
+
+    def _set_folders(self, zensical_config: dict) -> None:
+        """Sets the folder Zensical reads the pages from, the folder it writes the site in and the HTML templates folder."""
+        # Paths are relative to the generated config file, which is where Zensical reads them from.
+        templates_path: str = os.path.relpath(SHARED_HTML_TEMPLATES_FOLDER, self._zensical_config_file.parent)
+
         zensical_config["docs_dir"] = ZENSICAL_INPUT_FOLDER_NAME
         zensical_config["site_dir"] = VERSION_SITE_FOLDER_NAME
         zensical_config["theme"]["custom_dir"] = Path(templates_path).as_posix()
 
+
+    def _set_displayed_versions(self, zensical_config: dict) -> None:
+        """Sets the version displayed by the page templates, and the latest version its banner links to."""
+        latest_version: WebsiteVersion = self._version_catalog.get_latest_version()
+
         # Read by the page templates (shared/html_templates): the version badge, and the banner of an
         # earlier version linking to the latest one.
-        zensical_config["extra"]["displayed_version"] = self.version.get_name()
+        zensical_config["extra"]["displayed_version"] = self._version.get_name()
         zensical_config["extra"]["latest_version"] = latest_version.get_name()
-        zensical_config["extra"]["latest_version_url"] = version_catalog.site_url_of(latest_version)
+        zensical_config["extra"]["latest_version_url"] = self._version_catalog.site_url_of(latest_version)
 
-        if self.version.get_navigation():
-            zensical_config["nav"] = self.version.get_navigation()
 
-        self._write_yaml_file(self.zensical_config_file, zensical_config)
+    def _set_navigation(self, zensical_config: dict) -> None:
+        """Sets the menu of the version, if it declares one."""
+        if self._version.get_navigation():
+            zensical_config["nav"] = self._version.get_navigation()
 
+
+    # -- Private: YAML -------------------------------------------------------------------------------
 
     @staticmethod
     def _write_yaml_file(file: Path, content: dict) -> None:
+        """Writes the content as a YAML file, creating its folder if needed."""
         file.parent.mkdir(parents=True, exist_ok=True)
         file.write_text(yaml.safe_dump(content, sort_keys=False, allow_unicode=True), encoding="utf-8")

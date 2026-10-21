@@ -29,13 +29,13 @@ class VersionBuild:
         version: WebsiteVersion,
         version_build_folder: Path,
     ) -> None:
-        self.website_settings: WebsiteSettings = website_settings
-        self.git_repository: GitRepository = git_repository
-        self.version: WebsiteVersion = version
-        self.version_build_folder: Path = version_build_folder
+        self._website_settings: WebsiteSettings = website_settings
+        self._git_repository: GitRepository = git_repository
+        self._version: WebsiteVersion = version
+        self._version_build_folder: Path = version_build_folder
 
-        self.version_clone_folder: Path = version_build_folder.joinpath(VERSION_CLONE_FOLDER_NAME)  # the clone of the version
-        self.version_site_folder: Path = version_build_folder.joinpath(VERSION_SITE_FOLDER_NAME)
+        self._version_clone_folder: Path = version_build_folder.joinpath(VERSION_CLONE_FOLDER_NAME)
+        self._version_site_folder: Path = version_build_folder.joinpath(VERSION_SITE_FOLDER_NAME)
 
 
     # -- Public: entry point -------------------------------------------------------------------------
@@ -45,24 +45,35 @@ class VersionBuild:
         Clones the version, prepares its input folder, runs Zensical, then deletes the clone - also
         when the build fails. Returns the version site folder, which holds the pages of the version.
         """
-        print(f"Building version {self.version.get_name()} ({self.version.get_git_ref()})")
-        self.git_repository.clone_at(self.version.get_git_ref(), self.version_clone_folder)
+        print(f"Building version {self._version.get_name()} ({self._version.get_git_ref()})")
+        self._clone_version()
         try:
-            zensical_input: ZensicalInput = ZensicalInput(
-                self.website_settings, self.version_clone_folder, self.version_build_folder, self.version
-            )
-            self._run_zensical(zensical_input.prepare())
+            zensical_input: ZensicalInput = self._create_zensical_input()
+            zensical_input.prepare_input()
+            self._run_zensical(zensical_input.write_config())
         finally:
-            FolderHelper.delete_folder(self.version_clone_folder)
-        return self.version_site_folder
+            FolderHelper.delete_folder(self._version_clone_folder)
+        return self._version_site_folder
 
 
-    # -- Private: Zensical ---------------------------------------------------------------------------
+    # -- Private: build steps ------------------------------------------------------------------------
+
+    def _clone_version(self) -> None:
+        """Clones the git reference of the version into the clone folder."""
+        self._git_repository.clone_at(self._version.get_git_ref(), self._version_clone_folder)
+
+
+    def _create_zensical_input(self) -> ZensicalInput:
+        """The input of Zensical for the version, to write from the clone of the version."""
+        return ZensicalInput(
+            self._website_settings, self._version_clone_folder, self._version_build_folder, self._version
+        )
+
 
     def _run_zensical(self, zensical_config_file: Path) -> None:
-        """Zensical is the one installed for the Python running this tool."""
+        """Runs the Zensical installed for the Python running the website builder. Stops the build if it fails."""
         zensical_result: subprocess.CompletedProcess = subprocess.run(
             [sys.executable, "-m", "zensical", "build", "--clean", "-f", str(zensical_config_file)]
         )
         if zensical_result.returncode != 0:
-            raise SystemExit(f"Zensical failed on version {self.version.get_name()}")
+            raise SystemExit(f"Zensical failed on version {self._version.get_name()}")

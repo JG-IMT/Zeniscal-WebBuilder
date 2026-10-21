@@ -15,5 +15,5 @@ Initial development version.
 - Several versions per website, each one cloned from a branch or a tag. The latest version is served at
   the root of the website, the others in a folder named after them.
 - One `website_settings.yml` per project, completed by the settings shared by every website.
-- Paths starting with `/` are rewritten in the copies of the Markdown pages.
+- URLs starting with `/` are rewritten in the copies of the Markdown pages.
 - A build that fails keeps the previous website, and the clones are deleted once each version is built.
