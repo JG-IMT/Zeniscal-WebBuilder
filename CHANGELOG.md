@@ -4,6 +4,25 @@ All notable changes to this tool will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.1.1] 22/10/2026
+
+### Added
+
+- A breadcrumb.
+
+### Changed
+
+- The header, the side menu, the table of contents, the pagination and the footer have the sizes and the
+  spacing of the former website. The footer columns are equal and centred.
+- The colour toggle shows an outlined sun and moon.
+- The style sheet has variables for the colours and the sizes of the page.
+
+### Fixed
+
+- The table of contents no longer shows a scroll bar.
+- The footer links have the colour of the footer text: the theme dimmed them.
+- The page highlighted in the side menu can be seen in the dark scheme.
+
 ## [0.1.0] 22/10/2026
 
 ### Added
