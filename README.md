@@ -60,7 +60,7 @@ Zensical-WebBuilder/
 ├── shared/                              Common to every website
 │   ├── default_settings.yml             Common settings every website starts from
 │   ├── html_templates/                  Overrides of the theme pages
-│   │   ├── main.html                    Version badge and "no longer maintained" banner
+│   │   ├── main.html                    Around each page: breadcrumb, version badge, "no longer maintained" banner, Previous / Next
 │   │   └── partials/                    header, navbar_links, version_menu, copyright
 │   └── style_and_icon/                  site_style.css and favicon.ico
 └── webbuilder/                          The code
