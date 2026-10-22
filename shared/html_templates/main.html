@@ -1,9 +1,18 @@
 {% extends "base.html" %}
 
-{# Around each page: links (narrow screens), version badge, Previous / Next #}
+{# Around each page: links (narrow screens), breadcrumb, version badge, Previous / Next #}
 {% block content %}
   <nav class="site-mobile-links" aria-label="Site links">
     {% include "partials/navbar_links.html" %}
+  </nav>
+  <nav class="site-breadcrumb" aria-label="Breadcrumb">
+    <a class="site-breadcrumb__home" href="{{ nav.homepage.url | url }}" aria-label="Home">
+      {% include ".icons/material/home.svg" %}
+    </a>
+    {% for ancestor in page.ancestors | reverse %}
+      <span class="site-breadcrumb__item">{{ ancestor.title }}</span>
+    {% endfor %}
+    <span class="site-breadcrumb__item site-breadcrumb__current">{{ page.title }}</span>
   </nav>
   <div class="site-version-badge">Version: {{ config.extra.displayed_version }}</div>
   {% if config.extra.latest_version != config.extra.displayed_version %}

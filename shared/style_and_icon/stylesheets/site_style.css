@@ -27,6 +27,34 @@
 }
 
 
+/* -- Page size and layout ------------------------------------------------------------ */
+
+/* 1rem stays 20px on every screen: the theme makes it grow on wide screens, which enlarges the whole page */
+html {
+  font-size: 125%;
+}
+
+/* The side menu is on the left edge of the page and the content next to it, not centred in a narrow grid */
+.md-main__inner.md-grid {
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+@media (min-width: 76.25em) {
+  .md-content {
+    border-left: 1px solid var(--site-border);
+  }
+
+  /* Same selector as the theme, whose margin it replaces */
+  [dir="ltr"] .md-sidebar--primary:not([hidden]) ~ .md-content > .md-content__inner {
+    max-width: 48rem;
+    margin-left: 2.5rem;
+    margin-right: 1.2rem;
+  }
+}
+
+
 /* -- Navbar -------------------------------------------------------------------------- */
 
 /* !important: the "classic" variant hardcodes the header colours */
@@ -255,6 +283,39 @@
 
 [data-md-color-scheme="slate"] .md-typeset pre > code {
   background-color: #2b2d31;
+}
+
+.site-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.8rem;
+  font-size: 0.65rem;
+}
+
+.site-breadcrumb__home {
+  display: flex;
+  color: var(--site-text);
+}
+
+.site-breadcrumb__home svg {
+  width: 0.9rem;
+  height: 0.9rem;
+  fill: currentColor;
+}
+
+.site-breadcrumb__item::before {
+  content: "\203A";
+  margin-right: 0.4rem;
+  opacity: 0.6;
+}
+
+.site-breadcrumb__current {
+  padding: 0.1rem 0.5rem;
+  border-radius: 0.6rem;
+  background-color: rgba(135, 185, 36, 0.12);
+  color: var(--site-primary);
 }
 
 .site-version-badge {
