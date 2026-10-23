@@ -4,6 +4,23 @@ All notable changes to this tool will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.2.0] 23/10/2026
+
+### Added
+
+- `--build-websites` builds the websites found in `websites/`: all of them, or only the ones named.
+- Global search : the search of a website finds the pages of the other websites.
+- A demo with gradle tasks in `examples/demo/` : `buildDocumentationSites` and `serveDocumentationSites`.
+
+### Changed
+
+- A website is assembled in `websites/build/<path of its site_url>`, as it is on the server.
+- The work of a website is in the `preparation` folder next to its `website_settings.yml`.
+
+### Removed
+
+- `--settings`: use `--build-websites <name>`.
+
 ## [0.1.1] 22/10/2026
 
 ### Added

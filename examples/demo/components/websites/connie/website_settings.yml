@@ -1,0 +1,73 @@
+site_name: Connie
+# Production address (sitemap, canonical links, 404 page)
+site_url: https://openflexo.org/connie/docs/
+
+theme:
+  # The logo of the existing website, served by openflexo.org itself
+  logo: /connie/img/logo.png
+  # The shared features, plus "navigation.indexes": the page index.md of a section is the section itself
+  features:
+    - navigation.top
+    - navigation.path
+    - search.suggest
+    - navigation.indexes
+
+extra:
+  repository_url: https://github.com/JG-IMT/connie.git
+  versions:
+    - name: "2.1.0"
+      git_ref: "2.1.0"
+      is_latest: true
+      # Menu of the existing website: the pages without a title (no "#") are called "index"
+      navigation: &connie_navigation
+        - index:
+            - connie-core/index.md
+            - connie-core/DefineBindableContext.md
+            - connie-core/DefineBindingStrategy.md
+            - connie-core/DefineDataBinding.md
+            - connie-core/ExecuteDataBinding.md
+        - index: connie-utils/index.md
+        - index: index.md
+    - name: "2.0.0"
+      git_ref: "2.0.0"
+      navigation: *connie_navigation
+    - name: "1.5.0.1"
+      git_ref: "1.5.0.1"
+      navigation: *connie_navigation
+  # Folders of the repository copied into the website
+  documentation_sources:
+    - source: src/site/markdown
+      destination: .
+    - source: connie-core/src/site/markdown
+      destination: connie-core
+    - source: connie-utils/src/site/markdown
+      destination: connie-utils
+  homepage: https://openflexo.org/connie/
+  navbar_links:
+    - title: Home
+      link: https://openflexo.org/
+    - title: Documentation
+      is_current_site: true
+    - title: Contributors
+      link: https://openflexo.org/contributors
+    - title: Downloads
+      link: https://openflexo.org/downloads
+  footer_columns:
+    - title: Production tools
+      links:
+        - title: Jenkins production environment
+          link: https://jenkins.openflexo.org
+        - title: Continuous/nightly builds
+          link: https://downloads.openflexo.org/openflexo/
+        - title: Openflexo artifactory
+          link: https://maven.openflexo.org/artifactory
+        - title: Sonar
+          link: https://sonar.openflexo.org/
+    - title: Javadoc
+      links:
+        - title: Connie core
+          link: https://openflexo.org/connie/javadoc/connie-core/
+        - title: Connie utils
+          link: https://openflexo.org/connie/javadoc/connie-utils/
+        - title: Connie parser
+          link: https://openflexo.org/connie/javadoc/connie-parser/
