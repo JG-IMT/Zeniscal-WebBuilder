@@ -15,14 +15,17 @@ the latest version at its root, each earlier version in a folder named after it.
 import argparse
 from pathlib import Path
 
+from webbuilder.building.merge_search_index import MergeSearchIndex
 from webbuilder.building.website_build import WebsiteBuild
 from webbuilder.repository.git_repository import GitRepository
 from webbuilder.scanning.scan_website import ScanWebsite
 from webbuilder.settings.website_settings import WebsiteSettings
 
-WEBSITES_FOLDER: Path = Path(__file__).resolve().parents[1].joinpath("websites")  # next to the folder of the tool
+WEBSITES_FOLDER: Path = Path(__file__).resolve().parent.joinpath("examples", "demo", "components", "websites")
 SETTINGS_FILE_NAME: str = "website_settings.yml"
 BUILD_FOLDER_NAME: str = "build"
+WEBSITE_INDEX_FILE_NAME: str = "search.json"  # written by Zensical in each website
+GLOBAL_INDEX_FILE_NAME: str = "global_search.json"
 
 
 # -- Build ----------------------------------------------------------------------------------------------
@@ -51,5 +54,12 @@ def _parse_arguments() -> argparse.Namespace:
 
 if __name__ == "__main__":
     arguments: argparse.Namespace = _parse_arguments()
-    for website_name, project_settings_file in ScanWebsite(WEBSITES_FOLDER, SETTINGS_FILE_NAME).get_settings_files(arguments.build_websites).items():
+    scan_website: ScanWebsite = ScanWebsite(WEBSITES_FOLDER, SETTINGS_FILE_NAME)
+    for website_name, project_settings_file in scan_website.get_settings_files(arguments.build_websites).items():
         _build_website(website_name, project_settings_file)
+
+    # The index covers every website, also the ones not rebuilt now.
+    merge_search_index: MergeSearchIndex = MergeSearchIndex(
+        WEBSITES_FOLDER.joinpath(BUILD_FOLDER_NAME), WEBSITE_INDEX_FILE_NAME, GLOBAL_INDEX_FILE_NAME
+    )
+    merge_search_index.merge(scan_website.get_settings_files([]))
