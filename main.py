@@ -24,8 +24,7 @@ from webbuilder.settings.website_settings import WebsiteSettings
 WEBSITES_FOLDER: Path = Path(__file__).resolve().parent.joinpath("examples", "demo", "components", "websites")
 SETTINGS_FILE_NAME: str = "website_settings.yml"
 BUILD_FOLDER_NAME: str = "build"
-WEBSITE_INDEX_FILE_NAME: str = "search.json"  # written by Zensical in each website
-GLOBAL_INDEX_FILE_NAME: str = "global_search.json"
+INDEX_FILE_NAME: str = "search.json"  # written by Zensical in each website, read by the search of its pages
 
 
 # -- Build ----------------------------------------------------------------------------------------------
@@ -35,7 +34,7 @@ def _build_website(website_name: str, project_settings_file: Path) -> None:
     website_settings: WebsiteSettings = WebsiteSettings(project_settings_file)
     git_repository: GitRepository = GitRepository(website_settings.get_repository_url())
     work_folder: Path = project_settings_file.parent.joinpath(BUILD_FOLDER_NAME)  # next to website_settings.yml
-    website_folder: Path = WEBSITES_FOLDER.joinpath(BUILD_FOLDER_NAME, website_name)
+    website_folder: Path = WEBSITES_FOLDER.joinpath(BUILD_FOLDER_NAME, website_settings.get_site_path())  # as on the server
     WebsiteBuild(website_settings, git_repository, work_folder, website_folder).build()
 
 
@@ -58,8 +57,8 @@ if __name__ == "__main__":
     for website_name, project_settings_file in scan_website.get_settings_files(arguments.build_websites).items():
         _build_website(website_name, project_settings_file)
 
-    # The index covers every website, also the ones not rebuilt now.
+    # The search covers every website, also the ones not rebuilt now.
     merge_search_index: MergeSearchIndex = MergeSearchIndex(
-        WEBSITES_FOLDER.joinpath(BUILD_FOLDER_NAME), WEBSITE_INDEX_FILE_NAME, GLOBAL_INDEX_FILE_NAME
+        WEBSITES_FOLDER.joinpath(BUILD_FOLDER_NAME), BUILD_FOLDER_NAME, INDEX_FILE_NAME
     )
     merge_search_index.merge(scan_website.get_settings_files([]))

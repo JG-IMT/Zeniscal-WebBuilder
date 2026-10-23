@@ -60,6 +60,16 @@ class WebsiteSettings:
         return self._repository_url
 
 
+    def get_site_path(self) -> str:
+        """The path of the website in its address: https://openflexo.org/pamela/docs/ gives "pamela/docs"."""
+        return urlparse(self._zensical_settings["site_url"]).path.strip("/")
+
+
+    def get_site_name(self) -> str:
+        """The name of the website."""
+        return self._zensical_settings["site_name"]
+
+
     def get_version_catalog(self) -> WebsiteVersionCatalog:
         """The versions of the website, and where each one is in the website."""
         return self._version_catalog
