@@ -36,6 +36,7 @@ version in a folder named after it.
 
 To look at it, serve that folder with any web server, for example
 `python -m http.server 8000 --directory websites\build`, then open http://localhost:8000/pamela/docs/.
+For the demo: `python -m http.server 8000 --directory examples\demo\components\websites\build`.
 
 The demo in `examples/demo/components` (its `websites/` folder) does all of this with Gradle:
 
