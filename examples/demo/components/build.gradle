@@ -1,0 +1,49 @@
+// -- Documentation websites (Zensical) ----------------------------------------------------
+//   ./gradlew buildDocumentationSites                        builds every website of websites/ in websites/build
+//   ./gradlew buildDocumentationSites -Pwebsites=pamela      builds only the websites named (comma separated)
+//   ./gradlew serveDocumentationSites                        shows them on http://localhost:8000 (build them first)
+
+def builderFolder = file('../../..')
+def isWindows = org.gradle.internal.os.OperatingSystem.current().isWindows()
+def systemPython = isWindows ? 'python' : 'python3'
+def environmentPython = new File(builderFolder, isWindows ? '.venv/Scripts/python.exe' : '.venv/bin/python')
+
+tasks.register('buildDocumentationSites') {
+    group = 'documentation'
+    description = 'Builds the websites of websites/ in websites/build (all, or the ones named by -Pwebsites=a,b)'
+    doLast {
+        def websiteNames = project.hasProperty('websites') ? project.property('websites').split(',').toList() : []
+
+        if (!environmentPython.exists()) {
+            exec {
+                println '\n [1/3] Creating the Python environment (Python 3.11 or later required) \n'
+                workingDir builderFolder
+                commandLine systemPython, '-m', 'venv', '.venv'
+            }
+        }
+
+        exec {
+            println '\n [2/3] Installing Zensical \n'
+            workingDir builderFolder
+            commandLine environmentPython, '-m', 'pip', 'install', '-r', 'requirements.txt'
+        }
+
+        exec {
+            println "\n [3/3] Building ${websiteNames ?: 'every website'}, versions cloned from git \n"
+            workingDir builderFolder
+            commandLine([environmentPython, 'main.py', '--websites-folder', file('websites'), '--build-websites'] + websiteNames)
+        }
+    }
+}
+
+tasks.register('serveDocumentationSites') {
+    group = 'documentation'
+    description = 'Serves the built websites on http://localhost:8000 (build them first)'
+    doLast {
+        exec {
+            println '\n Serving the websites on http://localhost:8000 (Ctrl+C to stop) \n'
+            workingDir builderFolder
+            commandLine environmentPython, '-m', 'http.server', '8000', '--bind', 'localhost', '--directory', file('websites/build')
+        }
+    }
+}

@@ -14,7 +14,6 @@ from webbuilder.settings.website_settings import WebsiteSettings
 from webbuilder.settings.website_version import WebsiteVersion
 
 VERSION_BUILDS_FOLDER_NAME: str = "version_builds"
-WEBSITE_FOLDER_NAME: str = "website"
 WEBSITE_IN_PROGRESS_FOLDER_NAME: str = "website_in_progress"
 
 
@@ -23,13 +22,15 @@ class WebsiteBuild:
 
     # -- Public: initialization ----------------------------------------------------------------------
 
-    def __init__(self, website_settings: WebsiteSettings, git_repository: GitRepository, build_folder: Path) -> None:
+    def __init__(
+        self, website_settings: WebsiteSettings, git_repository: GitRepository, build_folder: Path, website_folder: Path
+    ) -> None:
         self._website_settings: WebsiteSettings = website_settings
         self._git_repository: GitRepository = git_repository
 
         self._version_builds_folder: Path = build_folder.joinpath(VERSION_BUILDS_FOLDER_NAME)  # one work folder per version
         self._website_in_progress_folder: Path = build_folder.joinpath(WEBSITE_IN_PROGRESS_FOLDER_NAME)
-        self._website_folder: Path = build_folder.joinpath(WEBSITE_FOLDER_NAME)
+        self._website_folder: Path = website_folder
 
 
     # -- Public: entry point -------------------------------------------------------------------------
@@ -75,4 +76,5 @@ class WebsiteBuild:
     def _replace_website(self) -> None:
         """Puts the website in progress in place of the previous website, deleted only now that every version is built."""
         FolderHelper.delete_folder(self._website_folder)
+        self._website_folder.parent.mkdir(parents=True, exist_ok=True)
         self._website_in_progress_folder.rename(self._website_folder)

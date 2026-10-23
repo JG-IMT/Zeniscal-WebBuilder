@@ -1,2 +1,6 @@
 .venv/
 __pycache__/
+examples/demo/components/.gradle/
+examples/demo/components/build/
+examples/demo/components/websites/build/
+examples/demo/components/websites/*/preparation/
