@@ -60,6 +60,11 @@ class WebsiteSettings:
         return self._repository_url
 
 
+    def get_folder(self) -> Path:
+        """The folder holding the website_settings.yml of the website."""
+        return self._project_settings_file.parent
+
+
     def get_site_path(self) -> str:
         """The path of the website in its address: https://openflexo.org/pamela/docs/ gives "pamela/docs"."""
         return urlparse(self._zensical_settings["site_url"]).path.strip("/")

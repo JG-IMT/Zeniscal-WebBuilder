@@ -23,19 +23,19 @@ from webbuilder.settings.website_settings import WebsiteSettings
 
 WEBSITES_FOLDER: Path = Path(__file__).resolve().parent.joinpath("examples", "demo", "components", "websites")
 SETTINGS_FILE_NAME: str = "website_settings.yml"
-BUILD_FOLDER_NAME: str = "build"
+BUILD_FOLDER_NAME: str = "build"  # the websites as on the server, in the websites folder
+PREPARATION_FOLDER_NAME: str = "preparation"  # the preparation of one website, next to its website_settings.yml
 INDEX_FILE_NAME: str = "search.json"  # written by Zensical in each website, read by the search of its pages
 
 
 # -- Build ----------------------------------------------------------------------------------------------
 
-def _build_website(website_name: str, project_settings_file: Path) -> None:
+def _build_website(website_name: str, website_settings: WebsiteSettings) -> None:
     print(f"== Website {website_name}")
-    website_settings: WebsiteSettings = WebsiteSettings(project_settings_file)
     git_repository: GitRepository = GitRepository(website_settings.get_repository_url())
-    work_folder: Path = project_settings_file.parent.joinpath(BUILD_FOLDER_NAME)  # next to website_settings.yml
+    preparation_folder: Path = website_settings.get_folder().joinpath(PREPARATION_FOLDER_NAME)
     website_folder: Path = WEBSITES_FOLDER.joinpath(BUILD_FOLDER_NAME, website_settings.get_site_path())  # as on the server
-    WebsiteBuild(website_settings, git_repository, work_folder, website_folder).build()
+    WebsiteBuild(website_settings, git_repository, preparation_folder, website_folder).build()
 
 
 # -- Command line ---------------------------------------------------------------------------------------
@@ -54,11 +54,14 @@ def _parse_arguments() -> argparse.Namespace:
 if __name__ == "__main__":
     arguments: argparse.Namespace = _parse_arguments()
     scan_website: ScanWebsite = ScanWebsite(WEBSITES_FOLDER, SETTINGS_FILE_NAME)
-    for website_name, project_settings_file in scan_website.get_settings_files(arguments.build_websites).items():
-        _build_website(website_name, project_settings_file)
+    website_settings_by_name: dict[str, WebsiteSettings] = {
+        website_name: WebsiteSettings(settings_file) for website_name, settings_file in scan_website.get_settings_files([]).items()
+    }
+    for website_name in scan_website.get_settings_files(arguments.build_websites):
+        _build_website(website_name, website_settings_by_name[website_name])
 
     # The search covers every website, also the ones not rebuilt now.
     merge_search_index: MergeSearchIndex = MergeSearchIndex(
-        WEBSITES_FOLDER.joinpath(BUILD_FOLDER_NAME), BUILD_FOLDER_NAME, INDEX_FILE_NAME
+        WEBSITES_FOLDER.joinpath(BUILD_FOLDER_NAME), PREPARATION_FOLDER_NAME, INDEX_FILE_NAME
     )
-    merge_search_index.merge(scan_website.get_settings_files([]))
+    merge_search_index.merge(website_settings_by_name)
